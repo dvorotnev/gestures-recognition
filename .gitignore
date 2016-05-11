@@ -1,6 +1,7 @@
 #Ignore files build by Visual Studio
 
 diploma/*/[dD]ebug/
+diploma/x64/
 **/.hg/
 **/*.opensdf
 **/*.v12.suo

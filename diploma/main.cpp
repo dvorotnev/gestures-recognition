@@ -1,7 +1,8 @@
 #include <highgui.hpp>
 #include <video\video.hpp>
 #include "..\Motion detection\ViBe\ViBe.h"
-#include <stdio.h>
+#include "..\deletenoise.h"
+
 // Отключаем предупреждение компилятора о константных условиях
 // в циклах, чтобы использовать бесконечные циклы.
 __pragma(warning(disable:4127));
@@ -20,16 +21,13 @@ void main()
     for (int i = 0; i < 10; i++)
     {
         video >> frame;
-        if (frame.empty())
-        {
-            std::printf("Skip\n");
-            //continue;
-        }
+        if (frame.empty()) continue;
         imshow("Video", frame);
         waitKey(33);
     }
 
     Mat fgmask;
+    Mat marked_image;
 
     while (true)
     {
@@ -39,11 +37,16 @@ void main()
         motion.apply(frame, fgmask, 1/15);
         imshow("Motion", fgmask);
 
+        Mat markImage;
+        deleteNoise(fgmask, marked_image, 100);
+        imshow("Noise", fgmask);
+
         int c = waitKey(30);
         if (c == 27) break;
     }
 
     frame.release();
     fgmask.release();
+    marked_image.release();
     destroyAllWindows();
 }
