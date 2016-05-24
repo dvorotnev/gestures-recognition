@@ -1,18 +1,28 @@
 #include <highgui.hpp>
 #include <video\video.hpp>
+
 #include "..\Motion detection\ViBe\ViBe.h"
 #include "..\deletenoise.h"
+#include "..\Contour.h"
+
+#ifdef ___DEBUG___
+#include <string>
+#include <fstream>
+
+unsigned int debug_counter = 1;
+char path[] = "d:\\Dropbox\\Диплом\\";
+#endif
 
 // Отключаем предупреждение компилятора о константных условиях
 // в циклах, чтобы использовать бесконечные циклы.
 __pragma(warning(disable:4127));
 
+using namespace std;
 using namespace cv;
 
 void main()
 {
     VideoCapture video("..\\test_videos\\campus_raw.avi");
-
     ViBe motion(20, 20, 2, 15);
 
     namedWindow("Video");
@@ -26,23 +36,53 @@ void main()
         waitKey(33);
     }
 
-    Mat fgmask;
-    Mat marked_image;
+    Mat fgmask(frame.size(), CV_8UC1);
+    Mat marked_image(frame.size(), CV_8UC1);
+    Mat contours_image(frame.size(), CV_8UC1);
 
     while (true)
     {
         video >> frame;
+        if (frame.empty())
+            break;
         imshow("Video", frame);
 
         motion.apply(frame, fgmask, 1/15);
         imshow("Motion", fgmask);
+#if ___DEBUG___
+        imwrite(String(path) + "res_motion\\" + std::to_string(debug_counter) + ".png", fgmask);
+#endif
 
-        Mat markImage;
         deleteNoise(fgmask, marked_image, 100);
         imshow("Noise", fgmask);
+#if ___DEBUG___
+        imwrite(String(path) + "res_noise\\" + std::to_string(debug_counter) + ".png", fgmask);
+#endif
+
+        ContourMapMorph contours;
+        contours.findContours(fgmask);
+        contours.sortContours();
+        contours.printAllContours(contours_image);
+        imshow("Contours", contours_image);
+
+#if ___DEBUG___
+        std::ofstream file(String(path) + "res_contours\\" + std::to_string(debug_counter) + ".txt");
+        for (int y = 0; y < contours_image.rows; ++y)
+        {
+            uchar* ptr = contours_image.ptr(y);
+            for (int x = 0; x < contours_image.cols; ++x)
+            {
+                file << (int)ptr[x] <<" ";
+            }
+            file << endl;
+        }
+#endif
 
         int c = waitKey(30);
         if (c == 27) break;
+#if ___DEBUG___
+        ++debug_counter;
+#endif
     }
 
     frame.release();

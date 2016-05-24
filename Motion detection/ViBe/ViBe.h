@@ -11,9 +11,6 @@
 class ViBe : public cv::BackgroundSubtractor
 {
 private:
-    const uchar BackGround = 0;
-    const uchar ForeGround = 255;
-
     int history_depth; //  оличество хранимых значений дл€ каждого пиксел€.
     int sqr_rad; //  вадрат максимального рассто€ни€ дл€ включени€ точки в модель.
     int min_overlap; // ћинимальное количество совпадений значени€ пиксел€ с моделью.

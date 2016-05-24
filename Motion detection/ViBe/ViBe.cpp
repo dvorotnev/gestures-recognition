@@ -6,6 +6,9 @@
 
 using namespace cv;
 
+const uchar BackGround = 0;
+const uchar ForeGround = 255;
+
 ViBe::ViBe() 
     : history_depth(20), sqr_rad(20 * 20), min_overlap(2), prob(16), samples(), generator()
 {

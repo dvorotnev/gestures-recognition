@@ -10,6 +10,7 @@ diploma/x64/
 **/*.sdf
 **/*.vcxproj
 **/*.sln
+/res_*/
 !diploma/diploma.sdf
 !diploma/diploma.sln
 !diploma/diploma.vcxproj
