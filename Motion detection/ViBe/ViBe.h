@@ -15,11 +15,12 @@ private:
     int sqr_rad; // Квадрат максимального расстояния для включения точки в модель.
     int min_overlap; // Минимальное количество совпадений значения пикселя с моделью.
     int prob; // Вероятность обновления модели.
-    cv::Mat_<cv::Point3i*> samples; // Матрица для хранения значений пикселей.
+    cv::Mat_<cv::Point3_<uchar>*> samples; // Матрица для хранения значений пикселей.
+    cv::Mat bg_mat; // Матрица для хранения фона.
     cv::RNG generator; // Генератор случайных чисел (используется равномерный закон распределения).
 
     // Функция, вычисляющая квадрат расстояния между двумя точками.
-    double distancesqr(const cv::Point3i &, const cv::Point3i &) const;
+    double distancesqr(const cv::Point3_<uchar> &, const cv::Point3_<uchar> &) const;
     // Функция инизиализации модели.
     void initialization(const cv::Mat &);
     // Функция выдаёт случайную точку из восьмисвязной области.
@@ -32,8 +33,8 @@ public:
     // Функция вычисляет маску сегментации и обновляет модель.
     // TODO: вычислять prob через learningrate.
     void apply(const cv::InputArray &Image, cv::OutputArray &mask, double);
-    // TODO: функция не реализована.
-    void getBackgroundImage(cv::OutputArray &backgroundImage) const;
+    // Функция вычисляет изображение фона.
+    void getBackgroundImage(cv::OutputArray& backgroundImage) const;
     ViBe();
     ViBe(int history_depth, int rad, int h, int prob);
     ~ViBe();

@@ -36,8 +36,9 @@ void main()
         waitKey(33);
     }
 
+    Mat bg_image(frame.size(), CV_8UC3);
     Mat fgmask(frame.size(), CV_8UC1);
-    Mat marked_image(frame.size(), CV_8UC1);
+    Mat marked_image(frame.size(), CV_32S);
     Mat contours_image(frame.size(), CV_8UC1);
 
     while (true)
@@ -46,6 +47,10 @@ void main()
         if (frame.empty())
             break;
         imshow("Video", frame);
+
+        motion.getBackgroundImage(bg_image);
+        if (!bg_image.empty())
+            imshow("Background", bg_image);
 
         motion.apply(frame, fgmask, 1/15);
         imshow("Motion", fgmask);
