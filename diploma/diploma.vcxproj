@@ -141,12 +141,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Contour.cpp" />
+    <ClCompile Include="..\CorrectionOfExposition.cpp" />
     <ClCompile Include="..\deletenoise.cpp" />
     <ClCompile Include="..\Motion detection\ViBe\ViBe.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Contour.h" />
+    <ClInclude Include="..\CorrectionOfExposition.h" />
     <ClInclude Include="..\deletenoise.h" />
     <ClInclude Include="..\Motion detection\ViBe\ViBe.h" />
   </ItemGroup>

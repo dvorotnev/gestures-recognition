@@ -4,6 +4,7 @@
 #include "..\Motion detection\ViBe\ViBe.h"
 #include "..\deletenoise.h"
 #include "..\Contour.h"
+#include "..\CorrectionOfExposition.h"
 
 #ifdef ___DEBUG___
 #include <string>
@@ -50,7 +51,10 @@ void main()
 
         motion.getBackgroundImage(bg_image);
         if (!bg_image.empty())
+        {
+            correctionOfExposition(fgmask, bg_image, frame);
             imshow("Background", bg_image);
+        }
 
         motion.apply(frame, fgmask, 1/15);
         imshow("Motion", fgmask);
