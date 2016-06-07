@@ -1,6 +1,8 @@
 #include <highgui.hpp>
 #include <video\video.hpp>
 
+#include "..\graphUtils\GraphUtils.h"
+
 #include "..\Motion detection\ViBe\ViBe.h"
 #include "..\deletenoise.h"
 #include "..\Contour.h"
@@ -91,6 +93,23 @@ void main()
             }
             file << endl;
         }
+        file.close();
+#endif
+
+        vector<float> curvature;
+        contours.getCurvature(curvature, 100, 0);
+        if (curvature.size() > 0)
+            showFloatGraph("Curvature", &curvature[0], (int)curvature.size(), 1);
+
+#if ___DEBUG___
+        file.open(String(path) + "res_curvature\\" + std::to_string(debug_counter) + ".txt");
+
+        for (int i = 0; i < curvature.size(); ++i)
+        {
+            file << curvature[i] << " ";
+        }
+        file << endl;
+        file.close();
 #endif
 
         int c = waitKey(30);
