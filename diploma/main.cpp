@@ -24,7 +24,7 @@ using namespace cv;
 void main()
 {
     //VideoCapture video("..\\test_videos\\campus_raw.avi");
-    VideoCapture video("d:\\пїЅпїЅпїЅпїЅпїЅпїЅ\\пїЅпїЅпїЅпїЅпїЅпїЅ\\test videos\\test18.avi");
+    VideoCapture video("d:\\Работа\\Диплом\\test videos\\test18.avi");
     ViBe motion(20, 20, 2, 15);
 
     namedWindow("Video");
