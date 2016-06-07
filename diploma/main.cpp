@@ -23,13 +23,14 @@ using namespace cv;
 
 void main()
 {
-    VideoCapture video("..\\test_videos\\campus_raw.avi");
+    //VideoCapture video("..\\test_videos\\campus_raw.avi");
+    VideoCapture video("d:\\������\\������\\test videos\\test18.avi");
     ViBe motion(20, 20, 2, 15);
 
     namedWindow("Video");
 
     Mat frame;
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 100; i++)
     {
         video >> frame;
         if (frame.empty()) continue;
@@ -48,6 +49,9 @@ void main()
         if (frame.empty())
             break;
         imshow("Video", frame);
+#if ___DEBUG___
+        imwrite(String(path) + "res_input\\" + std::to_string(debug_counter) + ".png", frame);
+#endif
 
         motion.getBackgroundImage(bg_image);
         if (!bg_image.empty())
@@ -59,6 +63,8 @@ void main()
         motion.apply(frame, fgmask, 1/15);
         imshow("Motion", fgmask);
 #if ___DEBUG___
+        imwrite(String(path) + "res_exposition\\" + std::to_string(debug_counter) + ".png", frame);
+        imwrite(String(path) + "res_background\\" + std::to_string(debug_counter) + ".png", bg_image);
         imwrite(String(path) + "res_motion\\" + std::to_string(debug_counter) + ".png", fgmask);
 #endif
 

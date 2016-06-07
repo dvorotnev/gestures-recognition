@@ -116,7 +116,7 @@ void ContourMap::printÑontour(Mat& image, int number) const
         return;
 
     size_t size = getNumberOfContours();
-    if ((number > size - 1) || (number < 0))
+    if ((number + 1 > size) || (number < 0))
         return;
     Contour current(contours[number]);
     Point2i point = current.start;
