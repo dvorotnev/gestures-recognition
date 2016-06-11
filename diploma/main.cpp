@@ -6,6 +6,8 @@
 #include "..\Contour.h"
 #include "..\CorrectionOfExposition.h"
 
+#define ___DEBUG___ 0
+
 #ifdef ___DEBUG___
 #include <string>
 #include <fstream>

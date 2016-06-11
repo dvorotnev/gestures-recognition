@@ -2,8 +2,6 @@
 #include <video\video.hpp>
 #include <vector>
 
-#define ___DEBUG___ 0
-
 struct Contour
 {
     // Начало контура.
