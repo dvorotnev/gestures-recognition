@@ -1,6 +1,7 @@
 #Ignore files build by Visual Studio
 
 diploma/*/[dD]ebug/
+diploma/*/[rR]elease/
 diploma/x64/
 Кривизна/
 Воротнёв - Диплом/
@@ -13,7 +14,5 @@ diploma/x64/
 **/*.vcxproj
 **/*.sln
 /res_*/
-!diploma/diploma.sdf
 !diploma/diploma.sln
 !diploma/diploma.vcxproj
-diploma/diploma.sdf
