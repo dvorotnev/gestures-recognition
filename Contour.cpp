@@ -184,6 +184,10 @@ void ContourMap::sortContours()
 
 int ContourMap::getCurvature(std::vector<float>& curvature, const int chord_length, int number) const
 {
+    size_t size = contours.size();
+    if ((number + 1 > size) || (number < 0))
+        return 0;
+
     // —читываем нужный контур.
     const Contour& contour = contours[number];
     const vector<int>& chain_code = contour.chain_code;
