@@ -148,6 +148,7 @@
     <ClCompile Include="..\graphUtils\GraphUtils.cpp">
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</TreatWarningAsError>
     </ClCompile>
+    <ClCompile Include="..\handDetector.cpp" />
     <ClCompile Include="..\Motion detection\ViBe\ViBe.cpp" />
     <ClCompile Include="..\Motion detection\ViBe_plus\ViBe_plus.cpp" />
     <ClCompile Include="..\Timer.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="..\CorrectionOfExposition.h" />
     <ClInclude Include="..\deletenoise.h" />
     <ClInclude Include="..\graphUtils\GraphUtils.h" />
+    <ClInclude Include="..\handDetector.h" />
     <ClInclude Include="..\Motion detection\ViBe\ViBe.h" />
     <ClInclude Include="..\Motion detection\ViBe_plus\ViBe_plus.h" />
     <ClInclude Include="..\Timer.h" />

@@ -9,6 +9,7 @@
 #include "..\Contour.h"
 #include "..\CorrectionOfExposition.h"
 #include "..\VideoSequenceCapture.h"
+#include "..\handDetector.h"
 #include "..\Timer.h"
 
 #define ___DEBUG___ 0
@@ -125,6 +126,10 @@ void main()
         file << endl;
         file.close();
 #endif
+
+        int hand = handDetector(curvature, 10, 25, 7, 11);
+        if (hand == 1)
+            waitKey();
 
         total_timer.stop();
         int c = waitKey(30);
