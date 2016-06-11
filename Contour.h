@@ -24,6 +24,8 @@ public:
     void printAllContours(cv::Mat& image) const;
     // Функция упорядочивает контуры по убыванию длины.
     void sortContours();
+    // Функция вычисляет кривизну контура в каждой точке.
+    int getCurvature(std::vector<float>& curvature, const int chord_length, int number) const;
     // Поиск контуров на изображении.
     virtual void findContours(cv::InputArray& Image) = 0;
 };
