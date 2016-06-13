@@ -111,7 +111,7 @@ void main()
 
         curvature_timer.start();
         vector<float> curvature;
-        contours.getCurvature(curvature, 100, 0);
+        contours.getCurvature(curvature, 75, 0);
         curvature_timer.stop();
         if (curvature.size() > 0)
             showFloatGraph("Curvature", &curvature[0], (int)curvature.size(), 1);
@@ -127,7 +127,7 @@ void main()
         file.close();
 #endif
 
-        int hand = handDetector(curvature, 10, 25, 7, 11);
+        int hand = handDetector(curvature, 15, 25, 7, 11);
         if (hand == 1)
             waitKey();
 
