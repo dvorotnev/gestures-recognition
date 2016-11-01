@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "Contour.h"
+
 #define ___DEBUG___ 0
 
 #if ___DEBUG___

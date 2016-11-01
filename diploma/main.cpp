@@ -8,8 +8,8 @@
 #include "..\deletenoise.h"
 #include "..\Contour.h"
 #include "..\CorrectionOfExposition.h"
-#include "..\VideoSequenceCapture.h"
 #include "..\handDetector.h"
+#include "..\VideoSequenceCapture.h"
 #include "..\Timer.h"
 
 #define ___DEBUG___ 0
@@ -18,7 +18,7 @@
 #include <string>
 
 unsigned int debug_counter = 1;
-char path[] = "d:\\Dropbox\\Диплом\\";
+char path[] = "d:\\Dropbox\\Воротнёв - Диплом\\";
 #endif
 
 // Отключаем предупреждение компилятора о константных условиях
@@ -30,7 +30,7 @@ using namespace cv;
 
 void main()
 {
-    Timer total_timer, exposition_timer, motion_timer, contours_timer, curvature_timer;
+    Timer total_timer, exposition_timer, motion_timer, contours_timer, curvature_timer, detector_timer;
     VideoCapture video(0);
     //VideoSequenceCapture video("d:\\test videos\\output2\\0.png");
 
@@ -41,6 +41,7 @@ void main()
     namedWindow("Motion");
     namedWindow("Contours");
     namedWindow("Curvature");
+    namedWindow("Output");
 
     // Пропускаем первые кадры, чтобы стабилизировалась 
     // яркость на изображениях, полученных с камеры.
@@ -56,6 +57,7 @@ void main()
     Mat bg_image(frame.size(), CV_8UC3);
     Mat fgmask(frame.size(), CV_8UC1);
     Mat contours_image(frame.size(), CV_8UC1);
+    Mat result_image(frame.size(), CV_8UC1);
 
     while (true)
     {
@@ -109,30 +111,45 @@ void main()
         file.close();
 #endif
 
-        curvature_timer.start();
-        vector<float> curvature;
-        contours.getCurvature(curvature, 75, 0);
-        curvature_timer.stop();
-        if (curvature.size() > 0)
-            showFloatGraph("Curvature", &curvature[0], (int)curvature.size(), 1);
+        result_image.setTo(0);
+        for (int i = 0; i < contours.getNumberOfContours(); ++i)
+        {
+            curvature_timer.start();
+            vector<float> curvature;
+            contours.getCurvature(curvature, 75, i);
+            curvature_timer.stop();
+
+            if (i == 0)
+            {
+                if (curvature.size() > 0)
+                    showFloatGraph("Curvature", &curvature[0], (int)curvature.size(), 1);
 
 #if ___DEBUG___
-        file.open(String(path) + "res_curvature\\" + std::to_string(debug_counter) + ".txt");
+                file.open(String(path) + "res_curvature\\" + std::to_string(debug_counter) + ".txt");
 
-        for (int i = 0; i < curvature.size(); ++i)
-        {
-            file << curvature[i] << " ";
+                for (int i = 0; i < curvature.size(); ++i)
+                {
+                    file << curvature[i] << " ";
+                }
+                file << endl;
+                file.close();
+#endif
+            }
+
+            detector_timer.start();
+            int hand = handDetector(curvature, 15, 25, 7, 11);
+            detector_timer.stop();
+            if (hand == 1)
+                contours.printContour(result_image, i);
         }
-        file << endl;
-        file.close();
+
+        imshow("Output", result_image);
+#if ___DEBUG___
+        imwrite(String(path) + "res_output\\" + std::to_string(debug_counter) + ".png", result_image);
 #endif
 
-        int hand = handDetector(curvature, 15, 25, 7, 11);
-        if (hand == 1)
-            waitKey();
-
         total_timer.stop();
-        int c = waitKey(30);
+        int c = waitKey(1);
         if (c == 27) break;
 #if ___DEBUG___
         ++debug_counter;
@@ -150,6 +167,7 @@ void main()
     time_log << "Motion detection: " << motion_timer.getTime() << " sec." << endl;
     time_log << "Contours: " << contours_timer.getTime() << " sec." << endl;
     time_log << "Curvature: " << curvature_timer.getTime() << " sec." << endl;
+    time_log << "Hand detection: " << detector_timer.getTime() << " sec." << endl;
     time_log.close();
 
     return;
