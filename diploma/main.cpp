@@ -79,7 +79,7 @@ void main()
 #endif
 
         ContourMapMorph contours;
-        contours.findContours(fgmask);
+        contours.extractContours(fgmask);
         contours.sortContours();
         contours.printAllContours(contours_image);
         imshow("Contours", contours_image);

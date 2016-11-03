@@ -10,34 +10,33 @@
 
 class ViBe : public cv::BackgroundSubtractor
 {
-private:
-    int history_depth; // Количество хранимых значений для каждого пикселя.
-    int sqr_rad; // Квадрат максимального расстояния для включения точки в модель.
-    int min_overlap; // Минимальное количество совпадений значения пикселя с моделью.
-    int prob; // Вероятность обновления модели.
-    cv::Mat_<cv::Point3_<uchar>*> samples; // Матрица для хранения значений пикселей.
-    cv::Mat bg_mat; // Матрица для хранения фона.
-    cv::RNG generator; // Генератор случайных чисел (используется равномерный закон распределения).
-
-    // Функция, вычисляющая квадрат расстояния между двумя точками.
-    double distancesqr(const cv::Point3_<uchar> &, const cv::Point3_<uchar> &) const;
-    // Функция инизиализации модели.
-    void initialization(const cv::Mat &);
-    // Функция выдаёт случайную точку из восьмисвязной области.
-    cv::Point2i GetRandNeibPixel(const cv::Point2i &); 
-
-    // Копирование запрещено
-    void operator=(const ViBe &) = delete;
-
 public:
     // Функция вычисляет маску сегментации и обновляет модель.
     // TODO: вычислять prob через learningrate.
     void apply(const cv::InputArray &Image, cv::OutputArray &mask, double);
     // Функция вычисляет изображение фона.
     void getBackgroundImage(cv::OutputArray& backgroundImage) const;
+
     ViBe();
-    ViBe(int history_depth, int rad, int h, int prob);
+    ViBe(int history_depth, int radius, int min_overlap, int probability);
     ~ViBe();
+
+private:
+    int history_depth_; // Количество хранимых значений для каждого пикселя.
+    int sqr_rad_; // Квадрат максимального расстояния для включения точки в модель.
+    int min_overlap_; // Минимальное количество совпадений значения пикселя с моделью.
+    int probability_; // Вероятность обновления модели.
+    cv::Mat_<cv::Point3_<uchar>*> samples_; // Матрица для хранения значений пикселей.
+    cv::Mat bg_mat_; // Матрица для хранения фона.
+    cv::RNG generator_; // Генератор случайных чисел (используется равномерный закон распределения).
+
+    // Функция инизиализации модели.
+    void initialize(const cv::Mat &);
+    // Функция выдаёт случайную точку из восьмисвязной области.
+    cv::Point2i getRandomNeiborPixel(const cv::Point2i &);
+
+    // Копирование запрещено
+    void operator=(const ViBe &) = delete;
 };
 
 #endif // __VIBE_H__

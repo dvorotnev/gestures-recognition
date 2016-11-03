@@ -9,159 +9,163 @@ using namespace cv;
 const uchar BackGround = 0;
 const uchar ForeGround = 255;
 
-ViBe::ViBe() 
-    : history_depth(20), sqr_rad(20 * 20), min_overlap(2), prob(16), samples(), generator()
+// ‘ункци€, вычисл€юща€ квадрат рассто€ни€ между двум€ точками.
+static double computeDistanceSqr(const Point3_<uchar> &pixel,
+                                 const Point3_<uchar> &sample)
+{
+    double sum = 0;
+    sum += (pixel.x - sample.x) * (pixel.x - sample.x);
+    sum += (pixel.y - sample.y) * (pixel.y - sample.y);
+    sum += (pixel.z - sample.z) * (pixel.z - sample.z);
+    return sum;
+}
+
+ViBe::ViBe() : history_depth_(20), sqr_rad_(20 * 20), min_overlap_(2),
+               probability_(16), samples_(), generator_()
 {
 }
 
-ViBe::ViBe(int _history_depth, int rad, int _min_overlap, int _prob)
-    : history_depth(_history_depth), sqr_rad(rad*rad), min_overlap(_min_overlap), 
-    prob(_prob), samples(), bg_mat(), generator()
+ViBe::ViBe(int history_depth, int rad, int min_overlap, int prob)
+    : history_depth_(history_depth), sqr_rad_(rad*rad),
+      min_overlap_(min_overlap), probability_(prob), samples_(),
+      bg_mat_(), generator_()
 {
 }
 
 ViBe::~ViBe()
 {
-    for (int y = 0; y < samples.rows; ++y)
+    if (samples_.empty() == true)
+        return;
+
+    for (int y = 0; y < samples_.rows; ++y)
     {
-        for (int x = 0; x < samples.cols; ++x)
+        for (int x = 0; x < samples_.cols; ++x)
         {
-            delete[] samples(y, x);
+            delete[] samples_(y, x);
         }
     }
-    samples.release();
-    bg_mat.release();
+
+    samples_.release();
+    bg_mat_.release();
 }
 
-double ViBe::distancesqr(const Point3_<uchar> &pixel, const Point3_<uchar> &sample) const
+void ViBe::initialize(const Mat &image)
 {
-    double sum = 0;
-    sum += (pixel.x - sample.x)*(pixel.x - sample.x);
-    sum += (pixel.y - sample.y)*(pixel.y - sample.y);
-    sum += (pixel.z - sample.z)*(pixel.z - sample.z);
-    return sum;
-}
-
-void ViBe::initialization(const Mat &image)
-{
-    samples.release();
-    bg_mat.release();
-    samples.create(image.rows, image.cols);
-    bg_mat.create(image.rows, image.cols, CV_8UC3);
+    samples_.release();
+    bg_mat_.release();
+    samples_.create(image.rows, image.cols);
+    bg_mat_.create(image.rows, image.cols, CV_8UC3);
 
     for (int y = 0; y < image.rows; ++y)
     {
         for (int x = 0; x < image.cols; ++x)
         {
-            samples(y, x) = new Point3_<uchar>[history_depth];
-            //«аполн€ем первое значение модели значением текущего пиксел€.
-            samples(y, x)[0] = {image.ptr(y)[3 * x],
-                                image.ptr(y)[3 * x + 1],
-                                image.ptr(y)[3 * x + 2]};
+            samples_(y, x) = new Point3_<uchar>[history_depth_];
+            // «аполн€ем первое значение модели значением текущего пиксел€.
+            samples_(y, x)[0] = {image.ptr(y)[3 * x],
+                                 image.ptr(y)[3 * x + 1],
+                                 image.ptr(y)[3 * x + 2]};
 
             //ќстальные значени€ модели заполн€ем значени€ми соседних пикселей.
-            for (int k = 1; k < history_depth; ++k)
+            for (int k = 1; k < history_depth_; ++k)
             {
-                Point2i neib_pixel = GetRandNeibPixel(Point2i(x, y)); // TODO: сделать передачу по ссылке.
-                samples(y, x)[k] = {image.ptr(neib_pixel.y)[3 * neib_pixel.x],
-                                    image.ptr(neib_pixel.y)[3 * neib_pixel.x + 1], 
-                                    image.ptr(neib_pixel.y)[3 * neib_pixel.x + 2]};
+                Point2i neib_pixel = getRandomNeiborPixel(Point2i(x, y));
+                samples_(y, x)[k] = {
+                    image.ptr(neib_pixel.y)[3 * neib_pixel.x],
+                    image.ptr(neib_pixel.y)[3 * neib_pixel.x + 1],
+                    image.ptr(neib_pixel.y)[3 * neib_pixel.x + 2]};
             }
 
             // «начение фона равно значению текущего пиксел€.
-            bg_mat.ptr(y)[3 * x] = image.ptr(y)[3 * x];
-            bg_mat.ptr(y)[3 * x + 1] = image.ptr(y)[3 * x + 1];
-            bg_mat.ptr(y)[3 * x + 2] = image.ptr(y)[3 * x + 2];
+            bg_mat_.ptr(y)[3 * x]     = image.ptr(y)[3 * x];
+            bg_mat_.ptr(y)[3 * x + 1] = image.ptr(y)[3 * x + 1];
+            bg_mat_.ptr(y)[3 * x + 2] = image.ptr(y)[3 * x + 2];
         }
     }
 }
 
-Point2i ViBe::GetRandNeibPixel(const Point2i &pixel)
+Point2i ViBe::getRandomNeiborPixel(const Point2i &pixel)
 {
-    Point2i neib_pixel;
+    Point2i neib_pixel = { 0 };
     do
     {
-        //Ќаходим координату х соседнего пиксел€.
         if (pixel.x == 0)
-            neib_pixel.x = generator.uniform(0, 2);
-        else if (pixel.x == samples.cols - 1)
-            neib_pixel.x = generator.uniform(samples.cols - 2, samples.cols);
+            neib_pixel.x = generator_.uniform(0, 2);
+        else if (pixel.x == samples_.cols - 1)
+            neib_pixel.x = generator_.uniform(samples_.cols - 2, samples_.cols);
         else
-            neib_pixel.x = generator.uniform(pixel.x - 1, pixel.x + 2);
+            neib_pixel.x = generator_.uniform(pixel.x - 1, pixel.x + 2);
 
-        //Ќаходим координату у соседнего пиксел€.
         if (pixel.y == 0)
-            neib_pixel.y = generator.uniform(0, 2);
-        else if (pixel.y == samples.rows - 1)
-            neib_pixel.y = generator.uniform(samples.rows - 2, samples.rows);
+            neib_pixel.y = generator_.uniform(0, 2);
+        else if (pixel.y == samples_.rows - 1)
+            neib_pixel.y = generator_.uniform(samples_.rows - 2, samples_.rows);
         else
-            neib_pixel.y = generator.uniform(pixel.y - 1, pixel.y + 2);
+            neib_pixel.y = generator_.uniform(pixel.y - 1, pixel.y + 2);
+
     } while ((neib_pixel.x == pixel.x) && (neib_pixel.y == pixel.y));
 
     return neib_pixel;
 }
 
-void ViBe::apply(const InputArray &_image, OutputArray &_fgmask, double)
+void ViBe::apply(const InputArray &image, OutputArray &fgmask, double)
 {
-    const Mat image = _image.getMat();
-    _fgmask.create(image.rows, image.cols, CV_8U);
-    Mat fgmask = _fgmask.getMat();
+    const Mat image_ = image.getMat();
+    fgmask.create(image_.rows, image_.cols, CV_8U);
+    Mat fgmask_ = fgmask.getMat();
 
-    // ѕереинициализаци€ если модель пуста€ или передан кадр с другими размерами.
-    if ((samples.empty() == 1) || (samples.rows != image.rows) || (samples.cols != image.cols))
+    if ((samples_.empty() == 1) || (samples_.rows != image_.rows) ||
+        (samples_.cols != image_.cols))
     {
-        initialization(image);
+        initialize(image_);
         return;
     }
 
-    for (int y = 0; y < image.rows; ++y)
+    for (int y = 0; y < image_.rows; ++y)
     {
-        const uchar* src = image.ptr(y);
-        uchar* dst = fgmask.ptr(y);
-        for (int x = 0; x < image.cols; ++x)
+        const uchar* src = image_.ptr(y);
+        uchar* dst = fgmask_.ptr(y);
+        for (int x = 0; x < image_.cols; ++x)
         {
-            // Ќаходим количество совпадений текущего значени€ пиксел€ с моделью.
+            // Ќаходим количество пересечений текущего значени€ пиксел€ с моделью.
             Point3_<uchar> pixel(src[x * 3], src[x * 3 + 1], src[x * 3 + 2]);
-            int counter = 0;
-            int index = 0;
-            double dist = 0;
 
-            while ((counter < min_overlap) && (index < history_depth))
+            int counter = 0;
+            for (int i = 0; i < history_depth_; ++i)
             {
-                Point3_<uchar> model_pixel = samples(y, x)[index];
-                dist = distancesqr(pixel, model_pixel);
-                if (dist < sqr_rad)
+                Point3_<uchar> model_pixel = samples_(y, x)[i];
+                double dist = computeDistanceSqr(pixel, model_pixel);
+                if (dist < sqr_rad_)
                 {
                     counter++;
+                    if (counter >= min_overlap_)
+                        break;
                 }
-                index++;
             }
 
-            // ≈сли пиксель принадлежит фону, то обновл€ем модель.
-            if (counter >= min_overlap)
+            if (counter >= min_overlap_)
             {
                 dst[x] = BackGround;
                 // ќбновление модели текущего пиксел€.
-                int randnumber = generator.uniform(0, prob);
-                if (randnumber == 0)
+                int rand_number = generator_.uniform(0, probability_);
+                if (rand_number == 0)
                 {
-                    randnumber = generator.uniform(0, history_depth);
-                    samples(y, x)[randnumber] = pixel;
-                    bg_mat.ptr(y)[3 * x] = pixel.x;
-                    bg_mat.ptr(y)[3 * x + 1] = pixel.y;
-                    bg_mat.ptr(y)[3 * x + 2] = pixel.z;
+                    rand_number = generator_.uniform(0, history_depth_);
+                    samples_(y, x)[rand_number] = pixel;
+                    bg_mat_.ptr(y)[3 * x] = pixel.x;
+                    bg_mat_.ptr(y)[3 * x + 1] = pixel.y;
+                    bg_mat_.ptr(y)[3 * x + 2] = pixel.z;
                 }
 
                 // ќбновление модели случайного соседа из восьмисв€зной области.
-                randnumber = generator.uniform(0, prob);
-                if (randnumber == 0)
+                rand_number = generator_.uniform(0, probability_);
+                if (rand_number == 0)
                 {
-                    Point2i neib_pixel = GetRandNeibPixel(Point2i(x, y));
-                    randnumber = generator.uniform(0, history_depth);
-                    samples(neib_pixel.y, neib_pixel.x)[randnumber] = pixel;
+                    Point2i neib_pixel = getRandomNeiborPixel(Point2i(x, y));
+                    rand_number = generator_.uniform(0, history_depth_);
+                    samples_(neib_pixel.y, neib_pixel.x)[rand_number] = pixel;
                 }
             }
-            // ѕомечаем движущуюс€ точку.
             else
             {
                 dst[x] = ForeGround;
@@ -170,8 +174,7 @@ void ViBe::apply(const InputArray &_image, OutputArray &_fgmask, double)
     }
 }
 
-void ViBe::getBackgroundImage(cv::OutputArray &Image) const
+void ViBe::getBackgroundImage(cv::OutputArray &image) const
 {
-    Mat image = Image.getMat();
-    bg_mat.copyTo(image);
+    bg_mat_.copyTo(image);
 }
