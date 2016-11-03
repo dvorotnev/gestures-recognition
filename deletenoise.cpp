@@ -1,5 +1,5 @@
-/*
-    Реализация функции для удаления мелких объектов с бинарного изображения.
+п»ї/*
+    Р РµР°Р»РёР·Р°С†РёСЏ С„СѓРЅРєС†РёРё РґР»СЏ СѓРґР°Р»РµРЅРёСЏ РјРµР»РєРёС… РѕР±СЉРµРєС‚РѕРІ СЃ Р±РёРЅР°СЂРЅРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.
 */
 
 #include <vector>
@@ -12,69 +12,69 @@ using namespace std;
 const uchar BackGround = 0;
 const uchar ForeGround = 255;
 
-// Маркирует все объекты на бинарном изображении и удаляет
-// объекты, которые по площади меньше, чем max_area.
+// РњР°СЂРєРёСЂСѓРµС‚ РІСЃРµ РѕР±СЉРµРєС‚С‹ РЅР° Р±РёРЅР°СЂРЅРѕРј РёР·РѕР±СЂР°Р¶РµРЅРёРё Рё СѓРґР°Р»СЏРµС‚
+// РѕР±СЉРµРєС‚С‹, РєРѕС‚РѕСЂС‹Рµ РїРѕ РїР»РѕС‰Р°РґРё РјРµРЅСЊС€Рµ, С‡РµРј max_area.
 static void markAndClearImage(Mat& srcImage, Mat& dstImage, int max_area);
 
-// Слияние меток двух объектов.
+// РЎР»РёСЏРЅРёРµ РјРµС‚РѕРє РґРІСѓС… РѕР±СЉРµРєС‚РѕРІ.
 static int mergeObjects(int top, int left, vector<int>& parents);
 
-// Удаляет объекты, площадь которых меньше, чем max_area
-// и находит для каждого объекта самого первого родителя в таблице.
+// РЈРґР°Р»СЏРµС‚ РѕР±СЉРµРєС‚С‹, РїР»РѕС‰Р°РґСЊ РєРѕС‚РѕСЂС‹С… РјРµРЅСЊС€Рµ, С‡РµРј max_area
+// Рё РЅР°С…РѕРґРёС‚ РґР»СЏ РєР°Р¶РґРѕРіРѕ РѕР±СЉРµРєС‚Р° СЃР°РјРѕРіРѕ РїРµСЂРІРѕРіРѕ СЂРѕРґРёС‚РµР»СЏ РІ С‚Р°Р±Р»РёС†Рµ.
 static void setLabels(vector<int>& table, vector<int>& square, int max_area);
 
-// Переобозначает объекты на входном изображении и отмечает оставшиеся объекты
-// на выходном бинарном изображении.
+// РџРµСЂРµРѕР±РѕР·РЅР°С‡Р°РµС‚ РѕР±СЉРµРєС‚С‹ РЅР° РІС…РѕРґРЅРѕРј РёР·РѕР±СЂР°Р¶РµРЅРёРё Рё РѕС‚РјРµС‡Р°РµС‚ РѕСЃС‚Р°РІС€РёРµСЃСЏ РѕР±СЉРµРєС‚С‹
+// РЅР° РІС‹С…РѕРґРЅРѕРј Р±РёРЅР°СЂРЅРѕРј РёР·РѕР±СЂР°Р¶РµРЅРёРё.
 static void reassignObjects(vector<int>& table, Mat& marked_image, Mat& binary_image);
 
-// Инвертирует бинарное изображение.
+// РРЅРІРµСЂС‚РёСЂСѓРµС‚ Р±РёРЅР°СЂРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ.
 static void inverseImage(Mat& binary_image, Mat& marked_image);
 
 void deleteNoise(Mat &image, Mat &marked_image, int max_area)
 {
     marked_image.create(image.rows, image.cols, CV_32S);
 
-    // Удаляем шум "перец".
+    // РЈРґР°Р»СЏРµРј С€СѓРј "РїРµСЂРµС†".
     inverseImage(image, marked_image);
     markAndClearImage(marked_image, image, max_area);
 
-    // Удаляем шум "соль"
+    // РЈРґР°Р»СЏРµРј С€СѓРј "СЃРѕР»СЊ"
     inverseImage(image, marked_image);
     markAndClearImage(marked_image, image, max_area);
 }
 
 static void markAndClearImage(Mat& marked_image, Mat& dstImage, int max_area)
 {
-    // Вектор для хранения площадей объектов.
+    // Р’РµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїР»РѕС‰Р°РґРµР№ РѕР±СЉРµРєС‚РѕРІ.
     vector<int> square;
-    // Вектор для хранения родителей объектов.
+    // Р’РµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ СЂРѕРґРёС‚РµР»РµР№ РѕР±СЉРµРєС‚РѕРІ.
     vector<int> parents;
 
-    // Маркируем изображение и создаём таблицу со смежными классами.
+    // РњР°СЂРєРёСЂСѓРµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ Рё СЃРѕР·РґР°С‘Рј С‚Р°Р±Р»РёС†Сѓ СЃРѕ СЃРјРµР¶РЅС‹РјРё РєР»Р°СЃСЃР°РјРё.
     int counter = 0;
     for (int y = 0; y < marked_image.rows; ++y)
     {
         int* ptr = marked_image.ptr<int>(y);
         for (int x = 0; x < marked_image.cols; ++x)
         {
-            // Получаем значение просматриваемого пикселя.
+            // РџРѕР»СѓС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ РїСЂРѕСЃРјР°С‚СЂРёРІР°РµРјРѕРіРѕ РїРёРєСЃРµР»СЏ.
             int current = ptr[x];
             if (current == BackGround)
                 continue;
 
-            // Получаем значение левого пикселя.
+            // РџРѕР»СѓС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ Р»РµРІРѕРіРѕ РїРёРєСЃРµР»СЏ.
             int left = 0;
             if (x < 1) left = BackGround;
             else left = ptr[x - 1];
 
-            // Получаем значение верхнего пикселя.
+            // РџРѕР»СѓС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІРµСЂС…РЅРµРіРѕ РїРёРєСЃРµР»СЏ.
             int top = 0;
             if (y < 1) top = BackGround;
             else top = marked_image.ptr<int>(y - 1)[x];
 
             if ((left == BackGround) && (top == BackGround))
             {
-                // Найден новый объект.
+                // РќР°Р№РґРµРЅ РЅРѕРІС‹Р№ РѕР±СЉРµРєС‚.
                 square.push_back(1);
                 parents.push_back(-1);
                 ++counter;
@@ -111,7 +111,7 @@ static void markAndClearImage(Mat& marked_image, Mat& dstImage, int max_area)
 
 static int mergeObjects(int top, int left, vector<int>& parents)
 {
-    // Делаем верхнюю метку наименьшей.
+    // Р”РµР»Р°РµРј РІРµСЂС…РЅСЋСЋ РјРµС‚РєСѓ РЅР°РёРјРµРЅСЊС€РµР№.
     if (left < top)
         std::swap(top, left);
 
@@ -120,13 +120,13 @@ static int mergeObjects(int top, int left, vector<int>& parents)
 
     if (parents[left - 1] == -1)
     {
-        // Родителя не было.
+        // Р РѕРґРёС‚РµР»СЏ РЅРµ Р±С‹Р»Рѕ.
         parents[left - 1] = top - 1;
     }
     else
     {
-        // Меняем родительскую метку самому
-        // верхнему объекту в иерархии родителей.
+        // РњРµРЅСЏРµРј СЂРѕРґРёС‚РµР»СЊСЃРєСѓСЋ РјРµС‚РєСѓ СЃР°РјРѕРјСѓ
+        // РІРµСЂС…РЅРµРјСѓ РѕР±СЉРµРєС‚Сѓ РІ РёРµСЂР°СЂС…РёРё СЂРѕРґРёС‚РµР»РµР№.
         int parent = top - 1;
         while (parents[parent] != -1)
             parent = parents[parent];
@@ -137,8 +137,8 @@ static int mergeObjects(int top, int left, vector<int>& parents)
 
         if (child != parent)
         {
-            // Меньшая метка - parent,
-            // старшая метка - child.
+            // РњРµРЅСЊС€Р°СЏ РјРµС‚РєР° - parent,
+            // СЃС‚Р°СЂС€Р°СЏ РјРµС‚РєР° - child.
             if (child < parent)
                 std::swap(parent, child);
 
@@ -155,7 +155,7 @@ static void setLabels(vector<int>& table, vector<int>& square, int max_area)
     {
         if (table[i] == -1) continue;
 
-        // Находим самого первого родителя объекта.
+        // РќР°С…РѕРґРёРј СЃР°РјРѕРіРѕ РїРµСЂРІРѕРіРѕ СЂРѕРґРёС‚РµР»СЏ РѕР±СЉРµРєС‚Р°.
         int parent = table[i];
         while (table[parent] != -1)
             parent = table[parent];
@@ -165,7 +165,7 @@ static void setLabels(vector<int>& table, vector<int>& square, int max_area)
         square[i] = 0;
     }
 
-    // Устанавливаем объекту нужную метку.
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РѕР±СЉРµРєС‚Сѓ РЅСѓР¶РЅСѓСЋ РјРµС‚РєСѓ.
     for (int i = 0; i < table.size(); ++i)
     {
         if (table[i] == -1)
@@ -174,7 +174,7 @@ static void setLabels(vector<int>& table, vector<int>& square, int max_area)
             ++table[i];
     }
 
-    // Если площадь объекта меньше порога, то удаляем его.
+    // Р•СЃР»Рё РїР»РѕС‰Р°РґСЊ РѕР±СЉРµРєС‚Р° РјРµРЅСЊС€Рµ РїРѕСЂРѕРіР°, С‚Рѕ СѓРґР°Р»СЏРµРј РµРіРѕ.
     for (int i = 0; i < table.size(); ++i)
     {
         if ((square[i] < max_area) && (square[i] != 0))
@@ -190,7 +190,7 @@ static void setLabels(vector<int>& table, vector<int>& square, int max_area)
 
 static void reassignObjects(vector<int>& table, Mat& marked_image, Mat& binary_image)
 {
-    // Объединяем смежные объекты на маркированом изображении.
+    // РћР±СЉРµРґРёРЅСЏРµРј СЃРјРµР¶РЅС‹Рµ РѕР±СЉРµРєС‚С‹ РЅР° РјР°СЂРєРёСЂРѕРІР°РЅРѕРј РёР·РѕР±СЂР°Р¶РµРЅРёРё.
     for (int y = 0; y < marked_image.rows; ++y)
     {
         int* ptr = marked_image.ptr<int>(y);
@@ -203,7 +203,7 @@ static void reassignObjects(vector<int>& table, Mat& marked_image, Mat& binary_i
         }
     }
 
-    // Переносим информацию на бинарное изображение.
+    // РџРµСЂРµРЅРѕСЃРёРј РёРЅС„РѕСЂРјР°С†РёСЋ РЅР° Р±РёРЅР°СЂРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ.
     for (int y = 0; y < binary_image.rows; ++y)
     {
         const int* src = marked_image.ptr<int>(y);

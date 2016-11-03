@@ -1,5 +1,5 @@
-/*
-    Реализация алгоритма сегментации движения ViBe.
+п»ї/*
+    Р РµР°Р»РёР·Р°С†РёСЏ Р°Р»РіРѕСЂРёС‚РјР° СЃРµРіРјРµРЅС‚Р°С†РёРё РґРІРёР¶РµРЅРёСЏ ViBe.
 */
 
 #include "ViBe.h"
@@ -9,7 +9,7 @@ using namespace cv;
 const uchar BackGround = 0;
 const uchar ForeGround = 255;
 
-// Функция, вычисляющая квадрат расстояния между двумя точками.
+// Р¤СѓРЅРєС†РёСЏ, РІС‹С‡РёСЃР»СЏСЋС‰Р°СЏ РєРІР°РґСЂР°С‚ СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РјРµР¶РґСѓ РґРІСѓРјСЏ С‚РѕС‡РєР°РјРё.
 static double computeDistanceSqr(const Point3_<uchar> &pixel,
                                  const Point3_<uchar> &sample)
 {
@@ -61,12 +61,12 @@ void ViBe::initialize(const Mat &image)
         for (int x = 0; x < image.cols; ++x)
         {
             samples_(y, x) = new Point3_<uchar>[history_depth_];
-            // Заполняем первое значение модели значением текущего пикселя.
+            // Р—Р°РїРѕР»РЅСЏРµРј РїРµСЂРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РјРѕРґРµР»Рё Р·РЅР°С‡РµРЅРёРµРј С‚РµРєСѓС‰РµРіРѕ РїРёРєСЃРµР»СЏ.
             samples_(y, x)[0] = {image.ptr(y)[3 * x],
                                  image.ptr(y)[3 * x + 1],
                                  image.ptr(y)[3 * x + 2]};
 
-            //Остальные значения модели заполняем значениями соседних пикселей.
+            //РћСЃС‚Р°Р»СЊРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ РјРѕРґРµР»Рё Р·Р°РїРѕР»РЅСЏРµРј Р·РЅР°С‡РµРЅРёСЏРјРё СЃРѕСЃРµРґРЅРёС… РїРёРєСЃРµР»РµР№.
             for (int k = 1; k < history_depth_; ++k)
             {
                 Point2i neib_pixel = getRandomNeiborPixel(Point2i(x, y));
@@ -76,7 +76,7 @@ void ViBe::initialize(const Mat &image)
                     image.ptr(neib_pixel.y)[3 * neib_pixel.x + 2]};
             }
 
-            // Значение фона равно значению текущего пикселя.
+            // Р—РЅР°С‡РµРЅРёРµ С„РѕРЅР° СЂР°РІРЅРѕ Р·РЅР°С‡РµРЅРёСЋ С‚РµРєСѓС‰РµРіРѕ РїРёРєСЃРµР»СЏ.
             bg_mat_.ptr(y)[3 * x]     = image.ptr(y)[3 * x];
             bg_mat_.ptr(y)[3 * x + 1] = image.ptr(y)[3 * x + 1];
             bg_mat_.ptr(y)[3 * x + 2] = image.ptr(y)[3 * x + 2];
@@ -127,7 +127,7 @@ void ViBe::apply(const InputArray &image, OutputArray &fgmask, double)
         uchar* dst = fgmask_.ptr(y);
         for (int x = 0; x < image_.cols; ++x)
         {
-            // Находим количество пересечений текущего значения пикселя с моделью.
+            // РќР°С…РѕРґРёРј РєРѕР»РёС‡РµСЃС‚РІРѕ РїРµСЂРµСЃРµС‡РµРЅРёР№ С‚РµРєСѓС‰РµРіРѕ Р·РЅР°С‡РµРЅРёСЏ РїРёРєСЃРµР»СЏ СЃ РјРѕРґРµР»СЊСЋ.
             Point3_<uchar> pixel(src[x * 3], src[x * 3 + 1], src[x * 3 + 2]);
 
             int counter = 0;
@@ -146,7 +146,7 @@ void ViBe::apply(const InputArray &image, OutputArray &fgmask, double)
             if (counter >= min_overlap_)
             {
                 dst[x] = BackGround;
-                // Обновление модели текущего пикселя.
+                // РћР±РЅРѕРІР»РµРЅРёРµ РјРѕРґРµР»Рё С‚РµРєСѓС‰РµРіРѕ РїРёРєСЃРµР»СЏ.
                 int rand_number = generator_.uniform(0, probability_);
                 if (rand_number == 0)
                 {
@@ -157,7 +157,7 @@ void ViBe::apply(const InputArray &image, OutputArray &fgmask, double)
                     bg_mat_.ptr(y)[3 * x + 2] = pixel.z;
                 }
 
-                // Обновление модели случайного соседа из восьмисвязной области.
+                // РћР±РЅРѕРІР»РµРЅРёРµ РјРѕРґРµР»Рё СЃР»СѓС‡Р°Р№РЅРѕРіРѕ СЃРѕСЃРµРґР° РёР· РІРѕСЃСЊРјРёСЃРІСЏР·РЅРѕР№ РѕР±Р»Р°СЃС‚Рё.
                 rand_number = generator_.uniform(0, probability_);
                 if (rand_number == 0)
                 {

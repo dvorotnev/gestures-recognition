@@ -1,4 +1,4 @@
-#include <highgui.hpp>
+п»ї#include <highgui.hpp>
 #include <video\video.hpp>
 
 #include "..\graphUtils\GraphUtils.h"
@@ -15,11 +15,11 @@
 #include <fstream>
 
 unsigned int debug_counter = 1;
-char path[] = "d:\\Dropbox\\Диплом\\";
+char path[] = "d:\\Dropbox\\Р”РёРїР»РѕРј\\";
 #endif
 
-// Отключаем предупреждение компилятора о константных условиях
-// в циклах, чтобы использовать бесконечные циклы.
+// РћС‚РєР»СЋС‡Р°РµРј РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ РєРѕРјРїРёР»СЏС‚РѕСЂР° Рѕ РєРѕРЅСЃС‚Р°РЅС‚РЅС‹С… СѓСЃР»РѕРІРёСЏС…
+// РІ С†РёРєР»Р°С…, С‡С‚РѕР±С‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р±РµСЃРєРѕРЅРµС‡РЅС‹Рµ С†РёРєР»С‹.
 __pragma(warning(disable:4127));
 
 using namespace std;
@@ -28,7 +28,7 @@ using namespace cv;
 void main()
 {
     //VideoCapture video("..\\test_videos\\campus_raw.avi");
-    VideoCapture video("d:\\Работа\\Диплом\\test videos\\test18.avi");
+    VideoCapture video(0);
     ViBe motion(20, 20, 2, 15);
 
     namedWindow("Video");

@@ -1,5 +1,5 @@
-/*
-    Реализация алгоритма поиска контуров на бинарном изображении.
+п»ї/*
+    Р РµР°Р»РёР·Р°С†РёСЏ Р°Р»РіРѕСЂРёС‚РјР° РїРѕРёСЃРєР° РєРѕРЅС‚СѓСЂРѕРІ РЅР° Р±РёРЅР°СЂРЅРѕРј РёР·РѕР±СЂР°Р¶РµРЅРёРё.
 */
 
 #include <assert.h>
@@ -19,7 +19,7 @@ using namespace cv;
 const uchar Background = 0;
 const uchar ForeGround = 255;
 
-// Кодирует направление между двумя точками.
+// РљРѕРґРёСЂСѓРµС‚ РЅР°РїСЂР°РІР»РµРЅРёРµ РјРµР¶РґСѓ РґРІСѓРјСЏ С‚РѕС‡РєР°РјРё.
 static int codeDirection(const Point2i& first, const Point2i& second)
 {
     const int dx = second.x - first.x;
@@ -56,15 +56,15 @@ static int codeDirection(const Point2i& first, const Point2i& second)
     }
 }
 
-// Функция декодирует направление между двумя точками.
-// В second записываются координаты второй точки.
-// TODO: вместо ошибки выдавать исключение. Возвращать всегда полученную точку.
+// Р¤СѓРЅРєС†РёСЏ РґРµРєРѕРґРёСЂСѓРµС‚ РЅР°РїСЂР°РІР»РµРЅРёРµ РјРµР¶РґСѓ РґРІСѓРјСЏ С‚РѕС‡РєР°РјРё.
+// Р’ second Р·Р°РїРёСЃС‹РІР°СЋС‚СЃСЏ РєРѕРѕСЂРґРёРЅР°С‚С‹ РІС‚РѕСЂРѕР№ С‚РѕС‡РєРё.
+// TODO: РІРјРµСЃС‚Рѕ РѕС€РёР±РєРё РІС‹РґР°РІР°С‚СЊ РёСЃРєР»СЋС‡РµРЅРёРµ. Р’РѕР·РІСЂР°С‰Р°С‚СЊ РІСЃРµРіРґР° РїРѕР»СѓС‡РµРЅРЅСѓСЋ С‚РѕС‡РєСѓ.
 static int DecodeDirection(const Point2i& first, Point2i& second, const int code)
 {
     if ((code > 7) || (code < 0))
         return -1;
 
-    // Определяем координату x.
+    // РћРїСЂРµРґРµР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚Сѓ x.
     switch (code)
     {
         case 0:
@@ -86,7 +86,7 @@ static int DecodeDirection(const Point2i& first, Point2i& second, const int code
             return -1;
     }
 
-    // Определяем координату y.
+    // РћРїСЂРµРґРµР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚Сѓ y.
     switch (code)
     {
         case 0:
@@ -115,7 +115,7 @@ size_t ContourMap::getNumberOfContours() const
     return contours_.size();
 }
 
-void ContourMap::printСontour(Mat& image, int number) const
+void ContourMap::printContour(Mat& image, int number) const
 {
     // TODO: exception.
     if (image.empty())
@@ -146,7 +146,7 @@ void ContourMap::printСontour(Mat& image, int number) const
         assert((next_point.x >= 0) && (next_point.x < image.cols) &&
                (next_point.y >= 0) && (next_point.y < image.rows));
 
-        // Отмечаем точку контура на изображении.
+        // РћС‚РјРµС‡Р°РµРј С‚РѕС‡РєСѓ РєРѕРЅС‚СѓСЂР° РЅР° РёР·РѕР±СЂР°Р¶РµРЅРёРё.
         ptr = image.ptr(next_point.y);
 
 #if ___DEBUG___
@@ -176,11 +176,11 @@ void ContourMap::printAllContours(Mat& image) const
 
     for (int i = 0; i < getNumberOfContours(); ++i)
     {
-        printСontour(image, i);
+        printContour(image, i);
     }
 }
 
-// TODO: использовать функцию qsort.
+// TODO: РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С„СѓРЅРєС†РёСЋ qsort.
 void ContourMap::sortContours()
 {
     size_t size = contours_.size();
@@ -215,7 +215,7 @@ int ContourMap::getCurvature(std::vector<float>& curvature,
     if (length < 4)
         return -1;
 
-    // Декодируем все точки контура.
+    // Р”РµРєРѕРґРёСЂСѓРµРј РІСЃРµ С‚РѕС‡РєРё РєРѕРЅС‚СѓСЂР°.
     vector<Point2i> points(length);
     points[0] = contour.start;
     for (int i = 0; i < length - 1; ++i)
@@ -227,11 +227,11 @@ int ContourMap::getCurvature(std::vector<float>& curvature,
     curvature.resize(length, 0);
     for (int i = 0; i < length; ++i)
     {
-        // Вычисляем координаты концов хорды.
+        // Р’С‹С‡РёСЃР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РєРѕРЅС†РѕРІ С…РѕСЂРґС‹.
         const int first_point = i - chord_length + 2;
         const int last_point = i + 1;
 
-        // Смещаем хорду по контуру.
+        // РЎРјРµС‰Р°РµРј С…РѕСЂРґСѓ РїРѕ РєРѕРЅС‚СѓСЂСѓ.
         for (int shift = 0; shift <= chord_length - 3; ++shift)
         {
             int start_index = first_point + shift;
@@ -244,14 +244,14 @@ int ContourMap::getCurvature(std::vector<float>& curvature,
             if (end_index >= length)
                 end_index = (int)length - 1;
 
-            // Вычисляем расстояние от точки до хорды.
+            // Р’С‹С‡РёСЃР»СЏРµРј СЂР°СЃСЃС‚РѕСЏРЅРёРµ РѕС‚ С‚РѕС‡РєРё РґРѕ С…РѕСЂРґС‹.
             const Point2i chord = points[end_index] - points[start_index];
             const Point2i point_to_chord = points[i] - points[start_index];
 
             double distance = abs(point_to_chord.x * chord.y -
                                  point_to_chord.y * chord.x);
             distance /= sqrt(chord.x * chord.x + chord.y * chord.y);
-            // Максимальное расстояние и будет кривизной контура в точке.
+            // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ Рё Р±СѓРґРµС‚ РєСЂРёРІРёР·РЅРѕР№ РєРѕРЅС‚СѓСЂР° РІ С‚РѕС‡РєРµ.
             if (distance > curvature[i])
                 curvature[i] = (float)distance;
         }
@@ -260,7 +260,7 @@ int ContourMap::getCurvature(std::vector<float>& curvature,
     return 0;
 }
 
-// Поиск направления, в котором расположены точки контура.
+// РџРѕРёСЃРє РЅР°РїСЂР°РІР»РµРЅРёСЏ, РІ РєРѕС‚РѕСЂРѕРј СЂР°СЃРїРѕР»РѕР¶РµРЅС‹ С‚РѕС‡РєРё РєРѕРЅС‚СѓСЂР°.
 static int findDirection(const Mat& image, const Point2i& start, Point2i& next_point)
 {
     int direction = -1;
@@ -288,7 +288,7 @@ static int findDirection(const Mat& image, const Point2i& start, Point2i& next_p
     return direction;
 }
 
-// Функция для нахождения следующей точки контура на изображении.
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РЅР°С…РѕР¶РґРµРЅРёСЏ СЃР»РµРґСѓСЋС‰РµР№ С‚РѕС‡РєРё РєРѕРЅС‚СѓСЂР° РЅР° РёР·РѕР±СЂР°Р¶РµРЅРёРё.
 static int findNextPoint(const Mat& image,
                          const Point2i& current_point,
                          Point2i& next_point,
@@ -298,14 +298,14 @@ static int findNextPoint(const Mat& image,
     if ((last_direction > 7) || (last_direction < 0))
         return -1;
 
-    // Массив всех возможных направлений в порядке
-    // наиболее вероятного поялвения.
+    // РњР°СЃСЃРёРІ РІСЃРµС… РІРѕР·РјРѕР¶РЅС‹С… РЅР°РїСЂР°РІР»РµРЅРёР№ РІ РїРѕСЂСЏРґРєРµ
+    // РЅР°РёР±РѕР»РµРµ РІРµСЂРѕСЏС‚РЅРѕРіРѕ РїРѕСЏР»РІРµРЅРёСЏ.
     int directions_queue[7] = {last_direction,
         last_direction + 1, last_direction - 1,
         last_direction + 2, last_direction - 2,
         last_direction + 3, last_direction - 3};
 
-    // Приводим значения направлений в диапазон от 0 до 7.
+    // РџСЂРёРІРѕРґРёРј Р·РЅР°С‡РµРЅРёСЏ РЅР°РїСЂР°РІР»РµРЅРёР№ РІ РґРёР°РїР°Р·РѕРЅ РѕС‚ 0 РґРѕ 7.
     for (int i = 0; i < 7; ++i)
     {
         if (directions_queue[i] > 7)
@@ -314,7 +314,7 @@ static int findNextPoint(const Mat& image,
             directions_queue[i] += 8;
     }
 
-    // Ищем следующую точку среди возможных направлений.
+    // РС‰РµРј СЃР»РµРґСѓСЋС‰СѓСЋ С‚РѕС‡РєСѓ СЃСЂРµРґРё РІРѕР·РјРѕР¶РЅС‹С… РЅР°РїСЂР°РІР»РµРЅРёР№.
     for (int i = 0; i < 7; ++i)
     {
         if (DecodeDirection(current_point, next_point, directions_queue[i]) != 0)
@@ -330,7 +330,7 @@ static int findNextPoint(const Mat& image,
     return -1;
 }
 
-// Функция считывает точки контура, у которого задано начало, и удаляет его с изображения.
+// Р¤СѓРЅРєС†РёСЏ СЃС‡РёС‚С‹РІР°РµС‚ С‚РѕС‡РєРё РєРѕРЅС‚СѓСЂР°, Сѓ РєРѕС‚РѕСЂРѕРіРѕ Р·Р°РґР°РЅРѕ РЅР°С‡Р°Р»Рѕ, Рё СѓРґР°Р»СЏРµС‚ РµРіРѕ СЃ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.
 static void extractContour(Mat& image, Contour& contour)
 {
     Point2i start(contour.start);
@@ -344,7 +344,7 @@ static void extractContour(Mat& image, Contour& contour)
         Point2i next_point = { 0 };
         int direction = findDirection(image, start, next_point);
 
-        // Ищем точки контура.
+        // РС‰РµРј С‚РѕС‡РєРё РєРѕРЅС‚СѓСЂР°.
         while (direction != -1)
         {
             current_point = next_point;
@@ -354,7 +354,7 @@ static void extractContour(Mat& image, Contour& contour)
             direction = findNextPoint(image, current_point, next_point, direction);
         }
 
-        // Инвертируем записанные элементы и меняем начало.
+        // РРЅРІРµСЂС‚РёСЂСѓРµРј Р·Р°РїРёСЃР°РЅРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ Рё РјРµРЅСЏРµРј РЅР°С‡Р°Р»Рѕ.
         if (i == 0)
         {
             for (int j = 0; j < chain_code.size(); ++j)
@@ -374,8 +374,8 @@ void ContourMapMorph::extractContours(InputArray& BinImage)
 {
     Mat image(BinImage.getMat());
 
-    //TODO: проверить.
-    // С помощью бинарной морфологии получаем границы объектов (обводим сверху).
+    //TODO: РїСЂРѕРІРµСЂРёС‚СЊ.
+    // РЎ РїРѕРјРѕС‰СЊСЋ Р±РёРЅР°СЂРЅРѕР№ РјРѕСЂС„РѕР»РѕРіРёРё РїРѕР»СѓС‡Р°РµРј РіСЂР°РЅРёС†С‹ РѕР±СЉРµРєС‚РѕРІ (РѕР±РІРѕРґРёРј СЃРІРµСЂС…Сѓ).
     Matx <uchar, 4, 4> kernel_close = { 1, 1, 1, 1,
                                         1, 1, 1, 1,
                                         1, 1, 1, 1,
@@ -396,7 +396,7 @@ void ContourMapMorph::extractContours(InputArray& BinImage)
     imwrite(String(path) + "res_erode\\" + std::to_string(debug_counter) + ".png", temp);
 #endif
 
-    // Записываем все контуры, найденные на изображении.
+    // Р—Р°РїРёСЃС‹РІР°РµРј РІСЃРµ РєРѕРЅС‚СѓСЂС‹, РЅР°Р№РґРµРЅРЅС‹Рµ РЅР° РёР·РѕР±СЂР°Р¶РµРЅРёРё.
     for (int y = 0; y < temp.rows; ++y)
     {
         uchar* ptr = temp.ptr(y);
