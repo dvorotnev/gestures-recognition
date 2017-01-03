@@ -34,6 +34,10 @@ private:
     void initialize(const cv::Mat &);
     // Функция выдаёт случайную точку из восьмисвязной области.
     cv::Point2i getRandomNeiborPixel(const cv::Point2i &);
+    // Функция классификации точек изображения.
+    void getSegmentationMask(const cv::Mat &image, cv::Mat &segmentation_mask) const;
+    // Функция обновления модели алгоритма.
+    void update(const cv::Mat &image, const cv::Mat &update_mask);
 
     // Копирование запрещено
     void operator=(const ViBe &) = delete;
