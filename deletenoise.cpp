@@ -13,37 +13,50 @@ const uchar BackGround = 0;
 const uchar ForeGround = 255;
 
 // Маркирует все объекты на бинарном изображении и удаляет
-// объекты, которые по площади меньше, чем max_area.
-static void markAndClearImage(Mat& srcImage, Mat& dstImage, int max_area);
+// объекты, которые по площади меньше, чем min_area.
+static void markAndClearImage(Mat& srcImage, Mat& dstImage, int min_area);
 
 // Слияние меток двух объектов.
 static int mergeObjects(int top, int left, vector<int>& parents);
 
-// Удаляет объекты, площадь которых меньше, чем max_area
+// Удаляет объекты, площадь которых меньше, чем min_area
 // и находит для каждого объекта самого первого родителя в таблице.
-static void setLabels(vector<int>& table, vector<int>& square, int max_area);
+static void setLabels(vector<int>& table, vector<int>& square, int min_area);
 
 // Переобозначает объекты на входном изображении и отмечает оставшиеся объекты
 // на выходном бинарном изображении.
 static void reassignObjects(vector<int>& table, Mat& marked_image, Mat& binary_image);
 
-// Инвертирует бинарное изображение.
-static void inverseImage(Mat& binary_image, Mat& marked_image);
+// Маркирует объекты на бинарном изображении.
+static void markImage(const Mat& binary_image, Mat& marked_image);
 
-void deleteNoise(Mat &image, Mat &marked_image, int max_area)
+// Инвертирует бинарное изображение.
+static void inverseBinaryImage(Mat& binary_image);
+
+void deleteNoise(Mat &image, int min_fg_area, int min_bg_area)
 {
-    marked_image.create(image.rows, image.cols, CV_32S);
+    Mat marked_image(image.size(), CV_32S);
 
     // Удаляем шум "перец".
-    inverseImage(image, marked_image);
-    markAndClearImage(marked_image, image, max_area);
+    if (min_bg_area > 0)
+    {
+        inverseBinaryImage(image);
+        markImage(image, marked_image);
+        markAndClearImage(marked_image, image, min_bg_area);
+        inverseBinaryImage(image);
+    }
 
     // Удаляем шум "соль"
-    inverseImage(image, marked_image);
-    markAndClearImage(marked_image, image, max_area);
+    if (min_fg_area > 0)
+    {
+        markImage(image, marked_image);
+        markAndClearImage(marked_image, image, min_fg_area);
+    }
+
+    return;
 }
 
-static void markAndClearImage(Mat& marked_image, Mat& dstImage, int max_area)
+static void markAndClearImage(Mat& marked_image, Mat& dstImage, int min_area)
 {
     // Вектор для хранения площадей объектов.
     vector<int> square;
@@ -105,8 +118,9 @@ static void markAndClearImage(Mat& marked_image, Mat& dstImage, int max_area)
         }
     }
 
-    setLabels(parents, square, max_area);
+    setLabels(parents, square, min_area);
     reassignObjects(parents, marked_image, dstImage);
+    return;
 }
 
 static int mergeObjects(int top, int left, vector<int>& parents)
@@ -149,7 +163,7 @@ static int mergeObjects(int top, int left, vector<int>& parents)
     return top;
 }
 
-static void setLabels(vector<int>& table, vector<int>& square, int max_area)
+static void setLabels(vector<int>& table, vector<int>& square, int min_area)
 {
     for (int i = 0; i < table.size(); ++i)
     {
@@ -177,7 +191,7 @@ static void setLabels(vector<int>& table, vector<int>& square, int max_area)
     // Если площадь объекта меньше порога, то удаляем его.
     for (int i = 0; i < table.size(); ++i)
     {
-        if ((square[i] < max_area) && (square[i] != 0))
+        if ((square[i] < min_area) && (square[i] != 0))
         {
             for (int j = 0; j < table.size(); ++j)
             {
@@ -186,6 +200,8 @@ static void setLabels(vector<int>& table, vector<int>& square, int max_area)
             }
         }
     }
+
+    return;
 }
 
 static void reassignObjects(vector<int>& table, Mat& marked_image, Mat& binary_image)
@@ -216,9 +232,11 @@ static void reassignObjects(vector<int>& table, Mat& marked_image, Mat& binary_i
                 dst[x] = ForeGround;
         }
     }
+
+    return;
 }
 
-static void inverseImage(Mat& binary_image, Mat& marked_image)
+static void markImage(const Mat& binary_image, Mat& marked_image)
 {
     for (int y = 0; y < binary_image.rows; ++y)
     {
@@ -226,10 +244,29 @@ static void inverseImage(Mat& binary_image, Mat& marked_image)
         int* dst = marked_image.ptr<int>(y);
         for (int x = 0; x < binary_image.cols; ++x)
         {
-            if (src[x] == BackGround)
+            if (src[x] == ForeGround)
                 dst[x] = -1;
             else
                 dst[x] = BackGround;
         }
     }
+
+    return;
+}
+
+static void inverseBinaryImage(Mat& binary_image)
+{
+    for (int y = 0; y < binary_image.rows; ++y)
+    {
+        uchar* src = binary_image.ptr(y);
+        for (int x = 0; x < binary_image.cols; ++x)
+        {
+            if (src[x] == ForeGround)
+                src[x] = BackGround;
+            else
+                src[x] = ForeGround;
+        }
+    }
+
+    return;
 }
