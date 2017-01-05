@@ -3,7 +3,7 @@
 
 #include "..\graphUtils\GraphUtils.h"
 
-#include "..\Motion detection\ViBe\ViBe.h"
+#include "..\Motion detection\ViBe_plus\ViBe_plus.h"
 #include "..\deletenoise.h"
 #include "..\Contour.h"
 #include "..\CorrectionOfExposition.h"
@@ -29,10 +29,12 @@ void main()
 {
     //VideoCapture video("..\\test_videos\\campus_raw.avi");
     VideoCapture video(0);
-    ViBe motion(20, 20, 2, 15);
+    ViBe_plus motion(20, 20, 2, 15);
 
     namedWindow("Video");
 
+    // Пропускаем первые кадры, чтобы стабилизировалась 
+    // яркость на изображениях, полученных с камеры.
     Mat frame;
     for (int i = 0; i < 100; i++)
     {
@@ -44,7 +46,6 @@ void main()
 
     Mat bg_image(frame.size(), CV_8UC3);
     Mat fgmask(frame.size(), CV_8UC1);
-    Mat marked_image(frame.size(), CV_32S);
     Mat contours_image(frame.size(), CV_8UC1);
 
     while (true)
@@ -64,18 +65,12 @@ void main()
             imshow("Background", bg_image);
         }
 
-        motion.apply(frame, fgmask, 1/15);
+        motion.apply(frame, fgmask, 1.0/15);
         imshow("Motion", fgmask);
 #if ___DEBUG___
         imwrite(String(path) + "res_exposition\\" + std::to_string(debug_counter) + ".png", frame);
         imwrite(String(path) + "res_background\\" + std::to_string(debug_counter) + ".png", bg_image);
         imwrite(String(path) + "res_motion\\" + std::to_string(debug_counter) + ".png", fgmask);
-#endif
-
-        deleteNoise(fgmask, marked_image, 100);
-        imshow("Noise", fgmask);
-#if ___DEBUG___
-        imwrite(String(path) + "res_noise\\" + std::to_string(debug_counter) + ".png", fgmask);
 #endif
 
         ContourMapMorph contours;
@@ -123,6 +118,5 @@ void main()
 
     frame.release();
     fgmask.release();
-    marked_image.release();
     destroyAllWindows();
 }

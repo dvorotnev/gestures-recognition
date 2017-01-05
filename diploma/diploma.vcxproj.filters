@@ -10,9 +10,6 @@
     <ClCompile Include="..\deletenoise.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
-    <ClCompile Include="..\handDetector.cpp">
-      <Filter>Source Code</Filter>
-    </ClCompile>
     <ClCompile Include="..\graphUtils\GraphUtils.cpp">
       <Filter>External Libraries</Filter>
     </ClCompile>
@@ -20,6 +17,9 @@
       <Filter>Source Code</Filter>
     </ClCompile>
     <ClCompile Include="..\Motion detection\ViBe\ViBe.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Motion detection\ViBe_plus\ViBe_plus.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,10 +36,10 @@
     <ClInclude Include="..\graphUtils\GraphUtils.h">
       <Filter>External Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="..\handDetector.h">
+    <ClInclude Include="..\Motion detection\ViBe\ViBe.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\Motion detection\ViBe\ViBe.h">
+    <ClInclude Include="..\Motion detection\ViBe_plus\ViBe_plus.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
