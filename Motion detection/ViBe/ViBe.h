@@ -20,7 +20,7 @@ public:
     void apply(const cv::InputArray &image, cv::OutputArray &mask, double);
     // Функция вычисляет изображение фона.
     void getBackgroundImage(cv::OutputArray& backgroundImage) const;
-    
+
 protected:
     // Возвращаемое значение равно true, если необходима инициализация 
     // модели фона, и false, иначе.
@@ -43,12 +43,12 @@ private:
     cv::Mat_<cv::Point3_<uchar>*> samples_; // Матрица для хранения значений пикселей.
     cv::Mat bg_mat_; // Матрица для хранения фона.
     cv::RNG generator_; // Генератор случайных чисел (используется равномерный закон распределения).
-        
+
     // Функция выдаёт случайную точку из восьмисвязной области.
     cv::Point2i getRandomNeiborPixel(const cv::Point2i &);
     // Функция обновления модели алгоритма.
     void update(const cv::Mat &image, const cv::Mat &update_mask);
-    
+
     // Копирование запрещено
     void operator=(const ViBe &) = delete;
 };

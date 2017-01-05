@@ -37,13 +37,14 @@ void ViBe_plus::apply(const InputArray &image, OutputArray &fgmask, double)
 }
 
 // Вычисление квадрата градиента в заданной точке изображения.
-static double computeSqrGradient(const Mat& image, int y, int x)
+static double computeGradientSqr(const Mat& image, int y, int x)
 {
     const uchar* top = image.ptr(y + 1);
     const uchar* current = image.ptr(y);
     const uchar* bottom = image.ptr(y - 1);
 
-    double gray[3][3] = {0};
+    // Переводим окрестность точки в градации серого.
+    double gray[3][3] = { 0 };
     gray[0][0] = 0.114 * top[3 * (x - 1)] + 0.587 * top[3 * (x - 1) + 1] + 0.299 * top[3 * (x - 1) + 2];
     gray[0][1] = 0.114 * top[3 * x]       + 0.587 * top[3 * x + 1]       + 0.299 * top[3 * x + 2];
     gray[0][2] = 0.114 * top[3 * (x + 1)] + 0.587 * top[3 * (x + 1) + 1] + 0.299 * top[3 * (x + 1) + 2];
@@ -91,7 +92,7 @@ void ViBe_plus::update(const Mat& image, const Mat& update_mask)
                 (mask[x - 1] != BackGround || update_mask.ptr(y - 1)[x] != BackGround ||
                 mask[x + 1] != BackGround || update_mask.ptr(y + 1)[x] != BackGround))
             {
-                double sqr_grad = computeSqrGradient(image, y, x);
+                double sqr_grad = computeGradientSqr(image, y, x);
                 if (sqr_grad > 2500)
                     continue;
             }

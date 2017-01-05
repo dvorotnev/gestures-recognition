@@ -75,8 +75,8 @@ void ViBe::initialize(const Mat &image)
             samples_(y, x) = new Point3_<uchar>[history_depth_];
             // Заполняем первое значение модели значением текущего пикселя.
             samples_(y, x)[0] = {image.ptr(y)[3 * x],
-                image.ptr(y)[3 * x + 1],
-                image.ptr(y)[3 * x + 2]};
+                                 image.ptr(y)[3 * x + 1],
+                                 image.ptr(y)[3 * x + 2]};
 
             //Остальные значения модели заполняем значениями соседних пикселей.
             for (int k = 1; k < history_depth_; ++k)
@@ -89,7 +89,7 @@ void ViBe::initialize(const Mat &image)
             }
 
             // Значение фона равно значению текущего пикселя.
-            bg_mat_.ptr(y)[3 * x] = image.ptr(y)[3 * x];
+            bg_mat_.ptr(y)[3 * x]     = image.ptr(y)[3 * x];
             bg_mat_.ptr(y)[3 * x + 1] = image.ptr(y)[3 * x + 1];
             bg_mat_.ptr(y)[3 * x + 2] = image.ptr(y)[3 * x + 2];
         }
@@ -188,7 +188,7 @@ void ViBe::updateNeiborPixel(const Mat& image, int y, int x)
 
 Point2i ViBe::getRandomNeiborPixel(const Point2i &pixel)
 {
-    Point2i neib_pixel = {0};
+    Point2i neib_pixel = { 0 };
     do
     {
         if (pixel.x == 0)

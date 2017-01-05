@@ -33,7 +33,8 @@ void main()
 
     namedWindow("Video");
 
-    // Пропускаем первые кадры, чтобы стабилизировалась яркость на камере.
+    // Пропускаем первые кадры, чтобы стабилизировалась 
+    // яркость на изображениях, полученных с камеры.
     Mat frame;
     for (int i = 0; i < 100; i++)
     {
@@ -71,7 +72,7 @@ void main()
         imwrite(String(path) + "res_background\\" + std::to_string(debug_counter) + ".png", bg_image);
         imwrite(String(path) + "res_motion\\" + std::to_string(debug_counter) + ".png", fgmask);
 #endif
-        
+
         ContourMapMorph contours;
         contours.extractContours(fgmask);
         contours.sortContours();
