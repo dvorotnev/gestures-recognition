@@ -7,6 +7,7 @@
 #include "..\deletenoise.h"
 #include "..\Contour.h"
 #include "..\CorrectionOfExposition.h"
+#include "..\VideoSequenceCapture.h"
 
 #define ___DEBUG___ 0
 
@@ -28,7 +29,7 @@ using namespace cv;
 void main()
 {
     //VideoCapture video("..\\test_videos\\campus_raw.avi");
-    VideoCapture video(0);
+    VideoSequenceCapture video("d:\\test videos\\output2\\0.png");
     ViBe_plus motion(20, 20, 2, 15);
 
     namedWindow("Video");
@@ -36,7 +37,7 @@ void main()
     // Пропускаем первые кадры, чтобы стабилизировалась 
     // яркость на изображениях, полученных с камеры.
     Mat frame;
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 20; i++)
     {
         video >> frame;
         if (frame.empty()) continue;

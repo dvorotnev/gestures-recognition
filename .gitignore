@@ -1,0 +1,11 @@
+#Ignore files build by Visual Studio
+
+**/[dD]ebug/
+**/[rR]elease/
+**/.hg/
+**/*.opensdf
+**/*.v12.suo
+**/*.hgignore
+**/*.sdf
+**/*.vcxproj.user
+/res_*/

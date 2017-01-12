@@ -22,6 +22,9 @@
     <ClCompile Include="..\Motion detection\ViBe_plus\ViBe_plus.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\VideoSequenceCapture.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Contour.h">
@@ -40,6 +43,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\Motion detection\ViBe_plus\ViBe_plus.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VideoSequenceCapture.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

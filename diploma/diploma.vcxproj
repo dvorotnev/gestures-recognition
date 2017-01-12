@@ -150,6 +150,7 @@
     </ClCompile>
     <ClCompile Include="..\Motion detection\ViBe\ViBe.cpp" />
     <ClCompile Include="..\Motion detection\ViBe_plus\ViBe_plus.cpp" />
+    <ClCompile Include="..\VideoSequenceCapture.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="..\graphUtils\GraphUtils.h" />
     <ClInclude Include="..\Motion detection\ViBe\ViBe.h" />
     <ClInclude Include="..\Motion detection\ViBe_plus\ViBe_plus.h" />
+    <ClInclude Include="..\VideoSequenceCapture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
