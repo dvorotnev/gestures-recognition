@@ -2,6 +2,9 @@
     Модуль последовательного воспроизведения кадров видеопоследовательности.
 */
 
+#ifndef __VIDEOSEQUENCECAPTURE_H__
+#define __VIDEOSEQUENCECAPTURE_H__
+
 #include <highgui.hpp>
 
 class VideoSequenceCapture
@@ -18,3 +21,5 @@ private:
     cv::String extension; // Расширение файлов видеопоследовательности.
     int counter; // Счётчик текущего кадра.
 };
+
+#endif // __VIDEOSEQUENCECAPTURE_H__

@@ -32,9 +32,14 @@ void main()
     Timer total_timer, exposition_timer, motion_timer, contours_timer, curvature_timer;
     VideoCapture video(0);
     //VideoSequenceCapture video("d:\\test videos\\output2\\0.png");
+
     ViBe_plus motion(20, 20, 2, 15);
 
     namedWindow("Video");
+    namedWindow("Background");
+    namedWindow("Motion");
+    namedWindow("Contours");
+    namedWindow("Curvature");
 
     // Пропускаем первые кадры, чтобы стабилизировалась 
     // яркость на изображениях, полученных с камеры.
