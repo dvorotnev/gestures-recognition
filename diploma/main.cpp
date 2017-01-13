@@ -1,4 +1,5 @@
-﻿#include <highgui.hpp>
+﻿#include <fstream>
+#include <highgui.hpp>
 #include <video\video.hpp>
 
 #include "..\graphUtils\GraphUtils.h"
@@ -7,12 +8,13 @@
 #include "..\deletenoise.h"
 #include "..\Contour.h"
 #include "..\CorrectionOfExposition.h"
+#include "..\VideoSequenceCapture.h"
+#include "..\Timer.h"
 
 #define ___DEBUG___ 0
 
-#ifdef ___DEBUG___
+#if ___DEBUG___
 #include <string>
-#include <fstream>
 
 unsigned int debug_counter = 1;
 char path[] = "d:\\Dropbox\\Диплом\\";
@@ -27,21 +29,27 @@ using namespace cv;
 
 void main()
 {
-    //VideoCapture video("..\\test_videos\\campus_raw.avi");
+    Timer total_timer, exposition_timer, motion_timer, contours_timer, curvature_timer;
     VideoCapture video(0);
+    //VideoSequenceCapture video("d:\\test videos\\output2\\0.png");
+
     ViBe_plus motion(20, 20, 2, 15);
 
     namedWindow("Video");
+    namedWindow("Background");
+    namedWindow("Motion");
+    namedWindow("Contours");
+    namedWindow("Curvature");
 
     // Пропускаем первые кадры, чтобы стабилизировалась 
     // яркость на изображениях, полученных с камеры.
     Mat frame;
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 20; i++)
     {
         video >> frame;
         if (frame.empty()) continue;
         imshow("Video", frame);
-        waitKey(33);
+        waitKey(30);
     }
 
     Mat bg_image(frame.size(), CV_8UC3);
@@ -50,6 +58,7 @@ void main()
 
     while (true)
     {
+        total_timer.start();
         video >> frame;
         if (frame.empty())
             break;
@@ -61,11 +70,15 @@ void main()
         motion.getBackgroundImage(bg_image);
         if (!bg_image.empty())
         {
+            exposition_timer.start();
             correctionOfExposition(fgmask, bg_image, frame);
+            exposition_timer.stop();
             imshow("Background", bg_image);
         }
 
+        motion_timer.start();
         motion.apply(frame, fgmask, 1.0/15);
+        motion_timer.stop();
         imshow("Motion", fgmask);
 #if ___DEBUG___
         imwrite(String(path) + "res_exposition\\" + std::to_string(debug_counter) + ".png", frame);
@@ -73,10 +86,12 @@ void main()
         imwrite(String(path) + "res_motion\\" + std::to_string(debug_counter) + ".png", fgmask);
 #endif
 
+        contours_timer.start();
         ContourMapMorph contours;
         contours.extractContours(fgmask);
         contours.sortContours();
         contours.printAllContours(contours_image);
+        contours_timer.stop();
         imshow("Contours", contours_image);
 
 #if ___DEBUG___
@@ -93,8 +108,10 @@ void main()
         file.close();
 #endif
 
+        curvature_timer.start();
         vector<float> curvature;
         contours.getCurvature(curvature, 100, 0);
+        curvature_timer.stop();
         if (curvature.size() > 0)
             showFloatGraph("Curvature", &curvature[0], (int)curvature.size(), 1);
 
@@ -109,6 +126,7 @@ void main()
         file.close();
 #endif
 
+        total_timer.stop();
         int c = waitKey(30);
         if (c == 27) break;
 #if ___DEBUG___
@@ -119,4 +137,15 @@ void main()
     frame.release();
     fgmask.release();
     destroyAllWindows();
+
+    ofstream time_log("Time.txt");
+    time_log << "Program time:" << endl;
+    time_log << "Total time: " << total_timer.getTime() << " sec." << endl;
+    time_log << "Correction of exposition: " << exposition_timer.getTime() << " sec." << endl;
+    time_log << "Motion detection: " << motion_timer.getTime() << " sec." << endl;
+    time_log << "Contours: " << contours_timer.getTime() << " sec." << endl;
+    time_log << "Curvature: " << curvature_timer.getTime() << " sec." << endl;
+    time_log.close();
+
+    return;
 }
