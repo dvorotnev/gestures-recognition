@@ -8,4 +8,5 @@
 **/*.hgignore
 **/*.sdf
 **/*.vcxproj.user
+**/Time.txt
 /res_*/

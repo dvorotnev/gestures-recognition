@@ -25,6 +25,9 @@
     <ClCompile Include="..\VideoSequenceCapture.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\Timer.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Contour.h">
@@ -46,6 +49,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\VideoSequenceCapture.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Timer.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
