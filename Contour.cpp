@@ -6,6 +6,8 @@
 
 #include "Contour.h"
 
+#define ___DEBUG___ 0
+
 #if ___DEBUG___
 #include <string>
 
