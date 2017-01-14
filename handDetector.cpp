@@ -12,8 +12,7 @@ int handDetector(const vector<float>& curvature, float min_treshold, float max_t
     if (length < 2)
         return -1;
 
-    vector<float> derivative;
-    derivative.resize(length, 0.0);
+    vector<float> derivative(length, 0.0);
 
     // Вычисляем первую производную в каждой точке функции кривизны.
     derivative[0] = curvature[1] - curvature[0];

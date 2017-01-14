@@ -149,7 +149,7 @@ void main()
 #endif
 
         total_timer.stop();
-        int c = waitKey(1);
+        int c = waitKey(30);
         if (c == 27) break;
 #if ___DEBUG___
         ++debug_counter;
