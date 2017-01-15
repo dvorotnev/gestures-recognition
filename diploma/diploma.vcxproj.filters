@@ -31,6 +31,9 @@
     <ClCompile Include="..\handDetector.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\Debug.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Contour.h">
@@ -58,6 +61,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\handDetector.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Debug.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

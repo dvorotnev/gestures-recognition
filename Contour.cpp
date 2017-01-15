@@ -5,15 +5,7 @@
 #include <assert.h>
 
 #include "Contour.h"
-
-#define ___DEBUG___ 0
-
-#if ___DEBUG___
-#include <string>
-
-extern unsigned int debug_counter;
-extern char path[];
-#endif
+#include "Debug.h"
 
 using namespace std;
 using namespace cv;
@@ -130,13 +122,7 @@ void ContourMap::printContour(Mat& image, int number) const
     Contour current = contours_[number];
     Point2i point = current.start;
 
-    uchar* ptr = image.ptr(point.y);
-
-#if ___DEBUG___
-    ptr[point.x] = (uchar)number;
-#else
-    ptr[point.x] = ForeGround;
-#endif
+    setLabel(image, point, ForeGround, (uchar)number + 1);
 
     vector<int>& code = current.chain_code;
     Point2i next_point(-1,-1);
@@ -149,14 +135,7 @@ void ContourMap::printContour(Mat& image, int number) const
                (next_point.y >= 0) && (next_point.y < image.rows));
 
         // Отмечаем точку контура на изображении.
-        ptr = image.ptr(next_point.y);
-
-#if ___DEBUG___
-        ptr[next_point.x] = (uchar)(number+1);
-#else
-        ptr[next_point.x] = ForeGround;
-#endif
-
+        setLabel(image, point, ForeGround, (uchar)number + 1);
         point = next_point;
     }
 }
@@ -370,6 +349,8 @@ static void extractContour(Mat& image, Contour& contour)
             contour.start = current_point;
         }
     }
+
+    return;
 }
 
 void ContourMapMorph::extractContours(InputArray& BinImage)
@@ -382,34 +363,33 @@ void ContourMapMorph::extractContours(InputArray& BinImage)
                                         1, 1, 1, 1,
                                         1, 1, 1, 1,
                                         1, 1, 1, 1};
+
     morphologyEx(image, image, MORPH_CLOSE, kernel_close);
-#if ___DEBUG___
-    imwrite(String(path) + "res_close\\" + std::to_string(debug_counter) + ".png", image);
-#endif
+    imageWrite("Close", image);
 
     Matx <uchar, 3, 3> kernel_erode = {0, 1, 0,
                                        1, 1, 1,
                                        0, 1, 0};
-    Mat temp(image.rows, image.cols, CV_8U);
-    erode(image, temp, kernel_erode);
-    temp = image - temp;
-#if ___DEBUG___
-    //TODO: rename
-    imwrite(String(path) + "res_erode\\" + std::to_string(debug_counter) + ".png", temp);
-#endif
+
+    Mat contours_image(image.rows, image.cols, CV_8U);
+    erode(image, contours_image, kernel_erode);
+    contours_image = image - contours_image;
+    imageWrite("Erode", contours_image);
 
     // Записываем все контуры, найденные на изображении.
-    for (int y = 0; y < temp.rows; ++y)
+    for (int y = 0; y < contours_image.rows; ++y)
     {
-        uchar* ptr = temp.ptr(y);
-        for (int x = 0; x < temp.cols; ++x)
+        uchar* ptr = contours_image.ptr(y);
+        for (int x = 0; x < contours_image.cols; ++x)
         {
             if (ptr[x] != ForeGround)
                 continue;
             Contour current = {Point2i(x, y), vector<int>()};
-            extractContour(temp, current);
+            extractContour(contours_image, current);
             if (current.chain_code.size() >= 4)
                 contours_.push_back(current);
         }
     }
+
+    return;
 }

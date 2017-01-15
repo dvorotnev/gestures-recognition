@@ -125,13 +125,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,9 +145,11 @@
   <ItemGroup>
     <ClCompile Include="..\Contour.cpp" />
     <ClCompile Include="..\CorrectionOfExposition.cpp" />
+    <ClCompile Include="..\Debug.cpp" />
     <ClCompile Include="..\deletenoise.cpp" />
     <ClCompile Include="..\graphUtils\GraphUtils.cpp">
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</TreatWarningAsError>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</TreatWarningAsError>
     </ClCompile>
     <ClCompile Include="..\handDetector.cpp" />
     <ClCompile Include="..\Motion detection\ViBe\ViBe.cpp" />
@@ -158,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="..\Contour.h" />
     <ClInclude Include="..\CorrectionOfExposition.h" />
+    <ClInclude Include="..\Debug.h" />
     <ClInclude Include="..\deletenoise.h" />
     <ClInclude Include="..\graphUtils\GraphUtils.h" />
     <ClInclude Include="..\handDetector.h" />

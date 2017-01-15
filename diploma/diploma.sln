@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "diploma", "diploma.vcxproj", "{DCDA125D-EF51-48E1-A960-64329308352C}"
 EndProject
@@ -16,6 +16,7 @@ Global
 		{DCDA125D-EF51-48E1-A960-64329308352C}.Debug|Win32.ActiveCfg = Debug|Win32
 		{DCDA125D-EF51-48E1-A960-64329308352C}.Debug|Win32.Build.0 = Debug|Win32
 		{DCDA125D-EF51-48E1-A960-64329308352C}.Debug|x64.ActiveCfg = Debug|x64
+		{DCDA125D-EF51-48E1-A960-64329308352C}.Debug|x64.Build.0 = Debug|x64
 		{DCDA125D-EF51-48E1-A960-64329308352C}.Release|Win32.ActiveCfg = Release|Win32
 		{DCDA125D-EF51-48E1-A960-64329308352C}.Release|Win32.Build.0 = Release|Win32
 		{DCDA125D-EF51-48E1-A960-64329308352C}.Release|x64.ActiveCfg = Release|x64
