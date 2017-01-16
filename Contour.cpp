@@ -135,7 +135,7 @@ void ContourMap::printContour(Mat& image, int number) const
                (next_point.y >= 0) && (next_point.y < image.rows));
 
         // Отмечаем точку контура на изображении.
-        setLabel(image, point, ForeGround, (uchar)number + 1);
+        setLabel(image, next_point, ForeGround, (uchar)number + 1);
         point = next_point;
     }
 }

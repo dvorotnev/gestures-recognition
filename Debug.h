@@ -2,16 +2,16 @@
     Дополнительный функционал для отладки.
 */
 
-#include <core.hpp>
-
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
+
+#include <core.hpp>
 
 // Отключаем предупреждение компилятора о неиспользуемых переменных.
 // Предупреждение возникает при компиляции функции setLabel.
 __pragma(warning(disable:4100));
 
-#define ___DEBUG___ 1
+#define ___DEBUG___ 0
 
 // Каталог отладки.
 #if ___DEBUG___
