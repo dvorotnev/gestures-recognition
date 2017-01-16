@@ -9,4 +9,4 @@
 **/*.sdf
 **/*.vcxproj.user
 **/Time.txt
-/res_*/
+/result/

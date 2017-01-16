@@ -2,8 +2,6 @@
 #include <highgui.hpp>
 #include <video\video.hpp>
 
-#include "..\graphUtils\GraphUtils.h"
-
 #include "..\Motion detection\ViBe_plus\ViBe_plus.h"
 #include "..\deletenoise.h"
 #include "..\Contour.h"
@@ -11,15 +9,7 @@
 #include "..\handDetector.h"
 #include "..\VideoSequenceCapture.h"
 #include "..\Timer.h"
-
-#define ___DEBUG___ 0
-
-#if ___DEBUG___
-#include <string>
-
-unsigned int debug_counter = 1;
-char path[] = "d:\\Dropbox\\Воротнёв - Диплом\\";
-#endif
+#include "..\Debug.h"
 
 // Отключаем предупреждение компилятора о константных условиях
 // в циклах, чтобы использовать бесконечные циклы.
@@ -36,7 +26,7 @@ void main()
 
     ViBe_plus motion(20, 20, 2, 15);
 
-    namedWindow("Video");
+    namedWindow("Input");
     namedWindow("Background");
     namedWindow("Motion");
     namedWindow("Contours");
@@ -50,7 +40,7 @@ void main()
     {
         video >> frame;
         if (frame.empty()) continue;
-        imshow("Video", frame);
+        binaryImageShow("Input", frame);
         waitKey(30);
     }
 
@@ -61,81 +51,51 @@ void main()
 
     while (true)
     {
+        // Получение входного изображения.
         total_timer.start();
         video >> frame;
         if (frame.empty())
             break;
-        imshow("Video", frame);
-#if ___DEBUG___
-        imwrite(String(path) + "res_input\\" + std::to_string(debug_counter) + ".png", frame);
-#endif
+        binaryImageShow("Input", frame);
 
+        // Коррекция яркости.
         motion.getBackgroundImage(bg_image);
         if (!bg_image.empty())
         {
             exposition_timer.start();
             correctionOfExposition(fgmask, bg_image, frame);
             exposition_timer.stop();
-            imshow("Background", bg_image);
+            binaryImageShow("Background", bg_image);
         }
 
+        // Выделение движения.
         motion_timer.start();
         motion.apply(frame, fgmask, 1.0/15);
         motion_timer.stop();
-        imshow("Motion", fgmask);
-#if ___DEBUG___
-        imwrite(String(path) + "res_exposition\\" + std::to_string(debug_counter) + ".png", frame);
-        imwrite(String(path) + "res_background\\" + std::to_string(debug_counter) + ".png", bg_image);
-        imwrite(String(path) + "res_motion\\" + std::to_string(debug_counter) + ".png", fgmask);
-#endif
+        binaryImageShow("Motion", fgmask);
 
+        // Извлечение контуров.
         contours_timer.start();
         ContourMapMorph contours;
         contours.extractContours(fgmask);
         contours.sortContours();
         contours.printAllContours(contours_image);
         contours_timer.stop();
-        imshow("Contours", contours_image);
-
-#if ___DEBUG___
-        std::ofstream file(String(path) + "res_contours\\" + std::to_string(debug_counter) + ".txt");
-        for (int y = 0; y < contours_image.rows; ++y)
-        {
-            uchar* ptr = contours_image.ptr(y);
-            for (int x = 0; x < contours_image.cols; ++x)
-            {
-                file << (int)ptr[x] <<" ";
-            }
-            file << endl;
-        }
-        file.close();
-#endif
+        imageShow("Contours", contours_image);
 
         result_image.setTo(0);
         for (int i = 0; i < contours.getNumberOfContours(); ++i)
         {
+            // Вычисление кривизны контура.
             curvature_timer.start();
             vector<float> curvature;
             contours.getCurvature(curvature, 75, i);
             curvature_timer.stop();
 
-            if (i == 0)
-            {
-                if (curvature.size() > 0)
-                    showFloatGraph("Curvature", &curvature[0], (int)curvature.size(), 1);
+            if ((i == 0) && (curvature.size() > 0))
+                curvatureShow("Curvature", curvature);
 
-#if ___DEBUG___
-                file.open(String(path) + "res_curvature\\" + std::to_string(debug_counter) + ".txt");
-
-                for (int i = 0; i < curvature.size(); ++i)
-                {
-                    file << curvature[i] << " ";
-                }
-                file << endl;
-                file.close();
-#endif
-            }
-
+            // Распознавание руки.
             detector_timer.start();
             int hand = handDetector(curvature, 15, 25, 7, 11);
             detector_timer.stop();
@@ -143,23 +103,18 @@ void main()
                 contours.printContour(result_image, i);
         }
 
-        imshow("Output", result_image);
-#if ___DEBUG___
-        imwrite(String(path) + "res_output\\" + std::to_string(debug_counter) + ".png", result_image);
-#endif
+        binaryImageShow("Output", result_image);
 
         total_timer.stop();
         int c = waitKey(30);
         if (c == 27) break;
-#if ___DEBUG___
-        ++debug_counter;
-#endif
     }
 
     frame.release();
     fgmask.release();
     destroyAllWindows();
 
+    // Записываем время работы программы.
     ofstream time_log("Time.txt");
     time_log << "Program time:" << endl;
     time_log << "Total time: " << total_timer.getTime() << " sec." << endl;
