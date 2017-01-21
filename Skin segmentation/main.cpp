@@ -1,12 +1,17 @@
+#include "../VideoSequenceCapture.h"
+
 #include "Skin_threthold.h"
 
+#include <core.hpp>
 #include <highgui.hpp>
 
 using namespace cv;
 
 void main()
 {
+    //VideoSequenceCapture video("d:\\test_videos\\output4\\0.png");
     VideoCapture video(0);
+
     Mat frame;
     Mat skinRGB;
     Mat skinYCrCb;
@@ -67,11 +72,14 @@ void main()
     createTrackbar("min_L", "HSL Options", &min_HSL_L, 255);
     createTrackbar("max_L", "HSL Options", &max_HSL_L, 255);
 
+    unsigned int frame_counter = 0;
     while (true)
     {
         video >> frame;
-        imshow("Original", frame);
+        if (frame.empty())
+            break;
 
+        imshow("Original", frame);
         thresholdRGB(frame, skinRGB, min_R, max_R, min_G, max_G, min_B, max_B);
         imshow("RGB", skinRGB);
         thresholdYCrCb(frame, skinYCrCb, min_Y, max_Y, min_Cr, max_Cr, min_Cb, max_Cb);
@@ -81,9 +89,22 @@ void main()
         thresholdHSL(frame, skinHSL, min_HSL_H, max_HSL_H, min_HSL_S, max_HSL_S, min_HSL_L, max_HSL_L);
         imshow("HSL", skinHSL);
 
+        ++frame_counter;
         char c = waitKey(30);
-        if (c == 27)
+        if (c == 32)
+        {
+            char counter[100];
+            sprintf(counter, "%d", frame_counter);
+            imwrite("Result\\" + cv::String(counter) + "_Original.png", frame);
+            imwrite("Result\\" + cv::String(counter) + "_RGB.png", skinRGB);
+            imwrite("Result\\" + cv::String(counter) + "_YCrCb.png", skinYCrCb);
+            imwrite("Result\\" + cv::String(counter) + "_HSV.png", skinHSV);
+            imwrite("Result\\" + cv::String(counter) + "_HSL.png", skinHSL);
+        }
+        else if (c == 27)
+        {
             break;
+        }
     }
 
     destroyAllWindows();

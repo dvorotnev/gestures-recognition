@@ -21,9 +21,15 @@
     <ClCompile Include="Skin_threthold.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\VideoSequenceCapture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Skin_threthold.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VideoSequenceCapture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

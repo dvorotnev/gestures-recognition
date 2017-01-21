@@ -145,10 +145,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\VideoSequenceCapture.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Skin_threthold.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\VideoSequenceCapture.h" />
     <ClInclude Include="Skin_threthold.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
