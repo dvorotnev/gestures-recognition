@@ -10,12 +10,16 @@
 
 #include "Debug.h"
 
-static unsigned int debug_frame_counter = 0;
+using namespace cv;
 
-void imageWrite(const cv::String& name, const cv::Mat& mat)
+static unsigned int debug_frame_counter = 0;
+static uchar BackGround = 0;
+static uchar ForeGround = 255;
+
+void imageWrite(const String& name, const Mat& mat)
 {
 #if ___DEBUG___
-    cv::String file_name = cv::String(debug_directory) + name;
+    String file_name = String(debug_directory) + name;
     _mkdir(file_name.c_str());
     char frame_counter_str[10];
     sprintf_s(frame_counter_str, "%d", debug_frame_counter);
@@ -24,22 +28,46 @@ void imageWrite(const cv::String& name, const cv::Mat& mat)
 #endif // ___DEBUG___
 }
 
-void binaryImageShow(const cv::String& winname, const cv::Mat& mat)
+#if ___DEBUG___
+static void binarizeImage(Mat& image)
+{
+    for (int y = 0; y < image.rows; ++y)
+    {
+        uchar* ptr = image.ptr(y);
+        for (int x = 0; x < image.cols; ++x)
+        {
+            if (ptr[x] != BackGround)
+                ptr[x] = ForeGround;
+        }
+    }
+}
+#endif // ___DEBUG___
+
+void imageShow(const String& winname, const Mat& mat)
 {
     if (winname == "Input")
         ++debug_frame_counter;
 
 #if ___DEBUG___
-    imageWrite(winname, mat);
+    if (mat.channels() == 1)
+    {
+        Mat output = mat.clone();
+        binarizeImage(output);
+        imageWrite(winname, output);
+    }
+    else
+    {
+        imageWrite(winname, mat);
+    }
 #else
     imshow(winname, mat);
 #endif // ___DEBUG___
 }
 
-void imageShow(const cv::String& winname, const cv::Mat& mat)
+void contoursShow(const String& winname, const Mat& mat)
 {
 #if ___DEBUG___
-    cv::String file_name = cv::String(debug_directory) + winname;
+    String file_name = String(debug_directory) + winname;
     _mkdir(file_name.c_str());
     char frame_counter_str[10];
     sprintf_s(frame_counter_str, "%d", debug_frame_counter);
@@ -61,10 +89,10 @@ void imageShow(const cv::String& winname, const cv::Mat& mat)
 #endif // ___DEBUG___
 }
 
-void curvatureShow(const cv::String& winname, const std::vector<float>& curvature)
+void curvatureShow(const String& winname, const std::vector<float>& curvature)
 {
 #if ___DEBUG___
-    cv::String file_name = cv::String(debug_directory) + winname;
+    String file_name = String(debug_directory) + winname;
     _mkdir(file_name.c_str());
     char frame_counter_str[10];
     sprintf_s(frame_counter_str, "%d", debug_frame_counter);
