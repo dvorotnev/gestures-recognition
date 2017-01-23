@@ -33,14 +33,14 @@ void main()
     namedWindow("Curvature");
     namedWindow("Output");
 
-    // Пропускаем первые кадры, чтобы стабилизировалась 
+    // Пропускаем первые кадры, чтобы стабилизировалась
     // яркость на изображениях, полученных с камеры.
     Mat frame;
     for (int i = 0; i < 20; i++)
     {
         video >> frame;
         if (frame.empty()) continue;
-        binaryImageShow("Input", frame);
+        imageShow("Input", frame);
         waitKey(30);
     }
 
@@ -56,7 +56,7 @@ void main()
         video >> frame;
         if (frame.empty())
             break;
-        binaryImageShow("Input", frame);
+        imageShow("Input", frame);
 
         // Коррекция яркости.
         motion.getBackgroundImage(bg_image);
@@ -65,14 +65,14 @@ void main()
             exposition_timer.start();
             correctionOfExposition(fgmask, bg_image, frame);
             exposition_timer.stop();
-            binaryImageShow("Background", bg_image);
+            imageShow("Background", bg_image);
         }
 
         // Выделение движения.
         motion_timer.start();
         motion.apply(frame, fgmask, 1.0/15);
         motion_timer.stop();
-        binaryImageShow("Motion", fgmask);
+        imageShow("Motion", fgmask);
 
         // Извлечение контуров.
         contours_timer.start();
@@ -81,7 +81,7 @@ void main()
         contours.sortContours();
         contours.printAllContours(contours_image);
         contours_timer.stop();
-        imageShow("Contours", contours_image);
+        contoursShow("Contours", contours_image);
 
         result_image.setTo(0);
         for (int i = 0; i < contours.getNumberOfContours(); ++i)
@@ -103,7 +103,7 @@ void main()
                 contours.printContour(result_image, i);
         }
 
-        binaryImageShow("Output", result_image);
+        imageShow("Output", result_image);
 
         total_timer.stop();
         int c = waitKey(30);

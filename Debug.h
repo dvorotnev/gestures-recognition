@@ -34,11 +34,11 @@ void imageWrite(const cv::String& name, const cv::Mat& mat);
 
 // В режиме отладки: запись изображения в каталог отладки.
 // В обычном режиме: вывод изображения на экран.
-void binaryImageShow(const cv::String& winname, const cv::Mat& mat);
+void imageShow(const cv::String& winname, const cv::Mat& mat);
 
 // В режиме отладки: запись изображения в текстовый файл в каталог отладки.
 // В обычном режиме: вывод изображения на экран.
-void imageShow(const cv::String& winname, const cv::Mat& mat);
+void contoursShow(const cv::String& winname, const cv::Mat& mat);
 
 // В режиме отладки: запись вектора в текстовый файл.
 // В обычном режиме: вывод графика на экран.
