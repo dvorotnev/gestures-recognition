@@ -2,7 +2,31 @@
     Функция распознавания руки на основе анализа кривизны контура.
 */
 
+#ifndef __HANDDETECTOR_H__
+#define __HANDDETECTOR_H__
+
 #include <vector>
+#include <core.hpp>
+
+#include "Contour.h"
+
+struct Finger
+{
+    cv::Point2i start;
+    cv::Point2i peak;
+    double length;
+};
+
+class Hand
+{
+public:
+    Hand() {};
+    Hand(std::vector<cv::Point2i>& points);
+    void print(cv::Mat& image);
+private:
+    Finger fingers[5];
+    bool at_front;
+};
 
 /*
     Функция на основании анализа кривизны контура вычисляет, является ли контур рукой.
@@ -18,4 +42,6 @@
         0 - контур не является контуром руки;
        -1 - ошибка.
 */
-int handDetector(const std::vector<float>& curvature, float min_treshold, float max_trethold, int min_counter, int max_counter);
+int handDetector(const Contour& contour, float min_treshold, float max_trethold, int min_counter, int max_counter, Hand& hand);
+
+#endif // __HANDDETECTOR_H__

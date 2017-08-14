@@ -29,7 +29,7 @@ void ViBe_plus::apply(const InputArray &image, OutputArray &fgmask, double)
     getSegmentationMask(image_, fgmask_);
 
     Mat update_mask = fgmask_.clone();
-    deleteNoise(fgmask_, 11, 21);
+    deleteNoise(fgmask_, 100, 200);
     deleteNoise(update_mask, 0, 51);
 
     update(image_, update_mask);
