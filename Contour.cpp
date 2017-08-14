@@ -104,143 +104,6 @@ static int DecodeDirection(const Point2i& first, Point2i& second, const int code
     return 0;
 }
 
-size_t ContourMap::getNumberOfContours() const
-{
-    return contours_.size();
-}
-
-void ContourMap::printContour(Mat& image, int number) const
-{
-    // TODO: exception.
-    if (image.empty())
-        return;
-
-    size_t size = getNumberOfContours();
-    if ((number + 1 > size) || (number < 0))
-        return;
-
-    Contour current = contours_[number];
-    Point2i point = current.start;
-
-    setLabel(image, point, ForeGround, (uchar)number + 1);
-
-    vector<int>& code = current.chain_code;
-    Point2i next_point(-1,-1);
-    for (vector<int>::iterator i = code.begin(); i != code.end(); ++i)
-    {
-        // TODO: exception.
-        if (DecodeDirection(point, next_point, *i) != 0)
-            return;
-        assert((next_point.x >= 0) && (next_point.x < image.cols) &&
-               (next_point.y >= 0) && (next_point.y < image.rows));
-
-        // Отмечаем точку контура на изображении.
-        setLabel(image, next_point, ForeGround, (uchar)number + 1);
-        point = next_point;
-    }
-}
-
-void ContourMap::printAllContours(Mat& image) const
-{
-    if (image.empty())
-        return;
-
-    for (int y = 0; y < image.rows; ++y)
-    {
-        uchar* ptr = image.ptr(y);
-        for (int x = 0; x < image.cols; ++x)
-        {
-            if (ptr[x] != Background)
-                ptr[x] = Background;
-        }
-    }
-
-    for (int i = 0; i < getNumberOfContours(); ++i)
-    {
-        printContour(image, i);
-    }
-}
-
-// TODO: использовать функцию qsort.
-void ContourMap::sortContours()
-{
-    size_t size = contours_.size();
-    if (size == 0)
-        return;
-
-    for (size_t i = size - 1; i > 1; --i)
-    {
-        for (size_t j = 0; j < i; ++j)
-        {
-            const size_t current_size = contours_[j].chain_code.size();
-            const size_t next_size    = contours_[j + 1].chain_code.size();
-            if (current_size < next_size)
-                swap(contours_[j], contours_[j + 1]);
-        }
-    }
-
-    return;
-}
-
-int ContourMap::getCurvature(std::vector<float>& curvature,
-                             const int chord_length,
-                             int number) const
-{
-    size_t size = contours_.size();
-    if ((number + 1 > size) || (number < 0))
-        return 0;
-
-    const Contour& contour = contours_[number];
-    const vector<int>& chain_code = contour.chain_code;
-    const size_t length = chain_code.size() + 1;
-    if (length < 4)
-        return -1;
-
-    // Декодируем все точки контура.
-    vector<Point2i> points(length);
-    points[0] = contour.start;
-    for (int i = 0; i < length - 1; ++i)
-    {
-        if (DecodeDirection(points[i], points[i + 1], chain_code[i]) != 0)
-            return -1;
-    }
-
-    curvature.resize(length, 0);
-    for (int i = 0; i < length; ++i)
-    {
-        // Вычисляем координаты концов хорды.
-        const int first_point = i - chord_length + 2;
-        const int last_point = i + 1;
-
-        // Смещаем хорду по контуру.
-        for (int shift = 0; shift <= chord_length - 3; ++shift)
-        {
-            int start_index = first_point + shift;
-            if (start_index < 0)
-                start_index = 0;
-            else if (start_index >= length)
-                start_index = (int)length - 1;
-
-            int end_index = last_point + shift;
-            if (end_index >= length)
-                end_index = (int)length - 1;
-
-            // Вычисляем расстояние от точки до хорды.
-            const Point2i chord = points[end_index] - points[start_index];
-            const Point2i point_to_chord = points[i] - points[start_index];
-
-            double distance = abs(point_to_chord.x * chord.y -
-                                 point_to_chord.y * chord.x);
-            distance /= sqrt(chord.x * chord.x + chord.y * chord.y);
-            // Максимальное расстояние и будет кривизной контура в точке.
-            if (distance > curvature[i])
-                curvature[i] = (float)distance;
-        }
-    }
-
-    return 0;
-}
-
 // Поиск направления, в котором расположены точки контура.
 static int findDirection(const Mat& image, const Point2i& start, Point2i& next_point)
 {
@@ -281,10 +144,10 @@ static int findNextPoint(const Mat& image,
 
     // Массив всех возможных направлений в порядке
     // наиболее вероятного поялвения.
-    int directions_queue[7] = {last_direction,
+    int directions_queue[7] = { last_direction,
         last_direction + 1, last_direction - 1,
         last_direction + 2, last_direction - 2,
-        last_direction + 3, last_direction - 3};
+        last_direction + 3, last_direction - 3 };
 
     // Приводим значения направлений в диапазон от 0 до 7.
     for (int i = 0; i < 7; ++i)
@@ -312,24 +175,22 @@ static int findNextPoint(const Mat& image,
 }
 
 // Функция считывает точки контура, у которого задано начало, и удаляет его с изображения.
-static void extractContour(Mat& image, Contour& contour)
+Contour::Contour(Mat& image, Point2i& point) : start_(point), chain_code_()
 {
-    Point2i start(contour.start);
-    uchar* ptr = image.ptr(start.y);
-    ptr[start.x] = Background;
-    vector<int>& chain_code = contour.chain_code;
+    uchar* ptr = image.ptr(start_.y);
+    ptr[start_.x] = Background;
 
     for (int i = 0; i < 2; ++i)
     {
         Point2i current_point = { 0 };
         Point2i next_point = { 0 };
-        int direction = findDirection(image, start, next_point);
+        int direction = findDirection(image, start_, next_point);
 
         // Ищем точки контура.
         while (direction != -1)
         {
             current_point = next_point;
-            chain_code.push_back(direction);
+            chain_code_.push_back(direction);
             uchar* ptr = image.ptr(current_point.y);
             ptr[current_point.x] = Background;
             direction = findNextPoint(image, current_point, next_point, direction);
@@ -338,38 +199,106 @@ static void extractContour(Mat& image, Contour& contour)
         // Инвертируем записанные элементы и меняем начало.
         if (i == 0)
         {
-            for (int j = 0; j < chain_code.size(); ++j)
+            for (int j = 0; j < chain_code_.size(); ++j)
             {
-                const int direction = chain_code[j];
+                const int direction = chain_code_[j];
                 const int inverse_direction = (direction + 4) % 8;
-                chain_code[j] = inverse_direction;
+                chain_code_[j] = inverse_direction;
             }
 
-            reverse(contour.chain_code.begin(), contour.chain_code.end());
-            contour.start = current_point;
+            reverse(chain_code_.begin(), chain_code_.end());
+            start_ = current_point;
         }
     }
 
     return;
 }
 
-void ContourMapMorph::extractContours(InputArray& BinImage)
+size_t Contour::length() const
+{
+    return chain_code_.size() + 1;
+}
+
+int Contour::getContour(vector<Point2i>& points) const
+{
+    points.resize(length());
+    points[0] = start_;
+    for (int i = 0; i < length() - 1; ++i)
+    {
+        if (DecodeDirection(points[i], points[i + 1], chain_code_[i]) != 0)
+            return -1;
+    }
+
+    return 0;
+}
+
+void Contour::printContour(Mat& image, uchar label) const
+{
+    // TODO: exception.
+    if (image.empty())
+        return;
+
+    Point2i point = start_;
+
+    uchar* image_ptr = image.ptr(point.y);
+    image_ptr[point.x] = label;
+
+    Point2i next_point(-1, -1);
+    for (vector<int>::const_iterator i = chain_code_.begin(); i != chain_code_.end(); ++i)
+    {
+        // TODO: exception.
+        if (DecodeDirection(point, next_point, *i) != 0)
+            return;
+        assert((next_point.x >= 0) && (next_point.x < image.cols) &&
+               (next_point.y >= 0) && (next_point.y < image.rows));
+
+        // Отмечаем точку контура на изображении.
+        uchar* image_ptr = image.ptr(next_point.y);
+        image_ptr[next_point.x] = label;
+
+        point = next_point;
+    }
+}
+
+int Contour::getContourPoint(Point2i& point, int point_index) const
+{
+    if (point_index > length())
+        return -1;
+
+    Point2i result = start_;
+    for (int i = 0; i < point_index; ++i)
+    {
+        DecodeDirection(result, result, chain_code_[i]);
+    }
+
+    point = result;
+    return 0;
+}
+
+int Contour::getContourPoints(vector<Point2i>& points, vector<int>& point_indexes) const
+{
+    size_t size = point_indexes.size();
+    points.resize(size);
+
+    int result = 0;
+    for (int i = 0; i < size; ++i)
+    {
+        result = getContourPoint(points[i], point_indexes[i]);
+        if (result != 0)
+            break;
+    }
+
+    return result;
+}
+
+void extractContours(InputArray& BinImage, vector<Contour>& contours)
 {
     Mat image(BinImage.getMat());
 
-    //TODO: проверить.
     // С помощью бинарной морфологии получаем границы объектов (обводим сверху).
-    Matx <uchar, 4, 4> kernel_close = { 1, 1, 1, 1,
-                                        1, 1, 1, 1,
-                                        1, 1, 1, 1,
-                                        1, 1, 1, 1};
-
-    morphologyEx(image, image, MORPH_CLOSE, kernel_close);
-    imageWrite("Close", image);
-
-    Matx <uchar, 3, 3> kernel_erode = {0, 1, 0,
-                                       1, 1, 1,
-                                       0, 1, 0};
+    Matx <uchar, 3, 3> kernel_erode = { 0, 1, 0,
+                                        1, 1, 1,
+                                        0, 1, 0 };
 
     Mat contours_image(image.rows, image.cols, CV_8U);
     erode(image, contours_image, kernel_erode);
@@ -384,10 +313,48 @@ void ContourMapMorph::extractContours(InputArray& BinImage)
         {
             if (ptr[x] != ForeGround)
                 continue;
-            Contour current = {Point2i(x, y), vector<int>()};
-            extractContour(contours_image, current);
-            if (current.chain_code.size() >= 4)
-                contours_.push_back(current);
+
+            Point2i point(x, y);
+            Contour current(contours_image, point);
+            if (current.length() >= 4)
+                contours.push_back(current);
+        }
+    }
+
+    return;
+}
+
+void printContours(Mat& image, const vector<Contour>& contours)
+{
+    image.setTo(0);
+    for (size_t i = 0; i < contours.size(); ++i)
+    {
+#if ___DEBUG___
+        uchar label = (uchar)i + 1;
+#else
+        uchar label = ForeGround;
+#endif
+        contours[i].printContour(image, label);
+    }
+
+    return;
+}
+
+// TODO: использовать функцию qsort.
+void sortContours(vector<Contour>& contours)
+{
+    size_t size = contours.size();
+    if (size == 0)
+        return;
+
+    for (size_t i = size - 1; i > 1; --i)
+    {
+        for (size_t j = 0; j < i; ++j)
+        {
+            const size_t current_size = contours[j].length();
+            const size_t next_size = contours[j + 1].length();
+            if (current_size < next_size)
+                swap(contours[j], contours[j + 1]);
         }
     }
 

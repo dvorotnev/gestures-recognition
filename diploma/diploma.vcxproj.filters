@@ -34,6 +34,9 @@
     <ClCompile Include="..\Debug.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\Curvature.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Contour.h">

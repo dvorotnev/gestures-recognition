@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="..\Contour.cpp" />
     <ClCompile Include="..\CorrectionOfExposition.cpp" />
+    <ClCompile Include="..\Curvature.cpp" />
     <ClCompile Include="..\Debug.cpp" />
     <ClCompile Include="..\deletenoise.cpp" />
     <ClCompile Include="..\graphUtils\GraphUtils.cpp">

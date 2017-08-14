@@ -18,9 +18,11 @@ __pragma(warning(disable:4127));
 using namespace std;
 using namespace cv;
 
+const uchar ForeGround = 255;
+
 void main()
 {
-    Timer total_timer, exposition_timer, motion_timer, contours_timer, curvature_timer, detector_timer;
+    Timer total_timer, exposition_timer, motion_timer, contours_timer, detector_timer;
     VideoCapture video(0);
     //VideoSequenceCapture video("d:\\test videos\\output2\\0.png");
 
@@ -30,7 +32,6 @@ void main()
     namedWindow("Background");
     namedWindow("Motion");
     namedWindow("Contours");
-    namedWindow("Curvature");
     namedWindow("Output");
 
     // Пропускаем первые кадры, чтобы стабилизировалась
@@ -76,31 +77,31 @@ void main()
 
         // Извлечение контуров.
         contours_timer.start();
-        ContourMapMorph contours;
-        contours.extractContours(fgmask);
-        contours.sortContours();
-        contours.printAllContours(contours_image);
+        Matx <uchar, 3, 3> kernel_open = { 1, 1, 1,
+                                           1, 1, 1,
+                                           1, 1, 1 };
+        morphologyEx(fgmask, fgmask, MORPH_OPEN, kernel_open);
+        imageWrite("Open", fgmask);
+        vector<Contour> contours;
+        extractContours(fgmask, contours);
+        sortContours(contours);
+        printContours(contours_image, contours);
         contours_timer.stop();
         contoursShow("Contours", contours_image);
 
         result_image.setTo(0);
-        for (int i = 0; i < contours.getNumberOfContours(); ++i)
+        for (int i = 0; i < contours.size(); ++i)
         {
-            // Вычисление кривизны контура.
-            curvature_timer.start();
-            vector<float> curvature;
-            contours.getCurvature(curvature, 75, i);
-            curvature_timer.stop();
-
-            if ((i == 0) && (curvature.size() > 0))
-                curvatureShow("Curvature", curvature);
-
             // Распознавание руки.
             detector_timer.start();
-            int hand = handDetector(curvature, 15, 25, 7, 11);
+            Hand hand;
+            int is_hand = handDetector(contours[i], 15, 25, 7, 11, hand);
             detector_timer.stop();
-            if (hand == 1)
-                contours.printContour(result_image, i);
+            if (is_hand == 0)
+            {
+                contours[i].printContour(result_image, ForeGround);
+                hand.print(result_image);
+            }
         }
 
         imageShow("Output", result_image);
@@ -121,7 +122,6 @@ void main()
     time_log << "Correction of exposition: " << exposition_timer.getTime() << " sec." << endl;
     time_log << "Motion detection: " << motion_timer.getTime() << " sec." << endl;
     time_log << "Contours: " << contours_timer.getTime() << " sec." << endl;
-    time_log << "Curvature: " << curvature_timer.getTime() << " sec." << endl;
     time_log << "Hand detection: " << detector_timer.getTime() << " sec." << endl;
     time_log.close();
 
