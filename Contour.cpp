@@ -297,8 +297,8 @@ void extractContours(InputArray& BinImage, vector<Contour>& contours)
 
     // С помощью бинарной морфологии получаем границы объектов (обводим сверху).
     Matx <uchar, 3, 3> kernel_erode = { 0, 1, 0,
-        1, 1, 1,
-        0, 1, 0 };
+                                        1, 1, 1,
+                                        0, 1, 0 };
 
     Mat contours_image(image.rows, image.cols, CV_8U);
     erode(image, contours_image, kernel_erode);
@@ -326,6 +326,7 @@ void extractContours(InputArray& BinImage, vector<Contour>& contours)
 
 void printContours(Mat& image, const vector<Contour>& contours)
 {
+    image.setTo(0);
     for (size_t i = 0; i < contours.size(); ++i)
     {
 #if ___DEBUG___

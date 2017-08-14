@@ -16,7 +16,7 @@ static Point2i midPoint(const Point2i& first, const Point2i second)
     return Point2i(x, y);
 }
 
-Hand::Hand(vector<Point2i>& points)
+Hand::Hand(const vector<Point2i>& points)
 {
     double first_difference = norm(points[1] - points[2]) - norm(points[2] - points[3]);
     double second_difference = norm(points[5] - points[6]) - norm(points[6] - points[7]);
@@ -66,7 +66,7 @@ Hand::Hand(vector<Point2i>& points)
     }
 }
 
-static void printRing(Mat& image, Point2i& center, int big_radius, int little_radius)
+static void printRing(Mat& image, const Point2i& center, int big_radius, int little_radius)
 {
     for (int y = center.y - big_radius; y <= center.y + big_radius; ++y)
     {
@@ -133,7 +133,7 @@ static int countLocalMax(const vector<float>& extremums, float min_threshold, fl
     return counter;
 }
 
-static int findExtremums(vector<float>& curvature, vector<float>& extremums, vector<int>& extremum_indexes)
+static int findExtremums(const vector<float>& curvature, vector<float>& extremums, vector<int>& extremum_indexes)
 {
     const size_t length = curvature.size();
     // Вычисляем первую производную в каждой точке функции кривизны.

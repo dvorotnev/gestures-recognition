@@ -1,5 +1,5 @@
-/*
-Реализация алгоритма поиска контуров на бинарном изображении.
+п»ї/*
+Р РµР°Р»РёР·Р°С†РёСЏ Р°Р»РіРѕСЂРёС‚РјР° РїРѕРёСЃРєР° РєРѕРЅС‚СѓСЂРѕРІ РЅР° Р±РёРЅР°СЂРЅРѕРј РёР·РѕР±СЂР°Р¶РµРЅРёРё.
 */
 
 #include "Contour.h"
@@ -22,11 +22,11 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
     curvature.resize(length, 0);
     for (int i = 0; i < length; ++i)
     {
-        // Вычисляем координаты концов хорды.
+        // Р’С‹С‡РёСЃР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РєРѕРЅС†РѕРІ С…РѕСЂРґС‹.
         const int first_point = i - chord_length + 2;
         const int last_point = i + 1;
 
-        // Смещаем хорду по контуру.
+        // РЎРјРµС‰Р°РµРј С…РѕСЂРґСѓ РїРѕ РєРѕРЅС‚СѓСЂСѓ.
         for (int shift = 0; shift <= chord_length - 3; ++shift)
         {
             int start_index = first_point + shift;
@@ -39,14 +39,14 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
             if (end_index >= length)
                 end_index = (int)length - 1;
 
-            // Вычисляем расстояние от точки до хорды.
+            // Р’С‹С‡РёСЃР»СЏРµРј СЂР°СЃСЃС‚РѕСЏРЅРёРµ РѕС‚ С‚РѕС‡РєРё РґРѕ С…РѕСЂРґС‹.
             const Point2i chord = points[end_index] - points[start_index];
             const Point2i point_to_chord = points[i] - points[start_index];
 
             double distance = abs(point_to_chord.x * chord.y -
                                   point_to_chord.y * chord.x);
             distance /= sqrt(chord.x * chord.x + chord.y * chord.y);
-            // Максимальное расстояние и будет кривизной контура в точке.
+            // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ Рё Р±СѓРґРµС‚ РєСЂРёРІРёР·РЅРѕР№ РєРѕРЅС‚СѓСЂР° РІ С‚РѕС‡РєРµ.
             if (distance > curvature[i])
                 curvature[i] = (float)distance;
         }
