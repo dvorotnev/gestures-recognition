@@ -5,11 +5,7 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#include <core.hpp>
-
-// Отключаем предупреждение компилятора о неиспользуемых переменных.
-// Предупреждение возникает при компиляции функции setLabel.
-__pragma(warning(disable:4100));
+#include <opencv2\core.hpp>
 
 #define ___DEBUG___ 0
 
@@ -44,4 +40,4 @@ void contoursShow(const cv::String& winname, const cv::Mat& mat);
 // В обычном режиме: вывод графика на экран.
 void curvatureShow(const cv::String& winname, const std::vector<float>& curvature);
 
-#endif __DEBUG_H__
+#endif // __DEBUG_H__

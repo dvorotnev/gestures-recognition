@@ -5,7 +5,7 @@
 #ifndef __VIDEOSEQUENCECAPTURE_H__
 #define __VIDEOSEQUENCECAPTURE_H__
 
-#include <highgui.hpp>
+#include <opencv2\highgui.hpp>
 
 class VideoSequenceCapture
 {

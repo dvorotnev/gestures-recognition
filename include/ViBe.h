@@ -5,8 +5,8 @@
 #ifndef __VIBE_H__
 #define __VIBE_H__
 
-#include <core.hpp>
-#include <video.hpp>
+#include <opencv2\core.hpp>
+#include <opencv2\video.hpp>
 
 class ViBe : public cv::BackgroundSubtractor
 {
@@ -22,9 +22,9 @@ public:
     void getBackgroundImage(cv::OutputArray& backgroundImage) const;
 
 protected:
-    // Возвращаемое значение равно true, если необходима инициализация 
+    // Возвращаемое значение равно true, если необходима инициализация
     // модели фона, и false, иначе.
-    inline bool needToInit();
+    bool needToInit();
     // Функция инизиализации модели.
     void initialize(const cv::Mat &);
     // Функция классификации точек изображения.

@@ -2,10 +2,10 @@
     Реализация функции коррекции яркости.
 */
 
-#include <imgproc.hpp>
+#include <opencv2\imgproc.hpp>
 #include <math.h>
 
-#include "CorrectionOfExposition.h"
+#include <CorrectionOfExposition.h>
 
 using namespace cv;
 

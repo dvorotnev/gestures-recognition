@@ -1,26 +1,22 @@
 ﻿#include <fstream>
-#include <highgui.hpp>
-#include <video\video.hpp>
+#include <opencv2\highgui.hpp>
+#include <opencv2\video\video.hpp>
 
-#include "..\Motion detection\ViBe_plus\ViBe_plus.h"
-#include "..\deletenoise.h"
-#include "..\Contour.h"
-#include "..\CorrectionOfExposition.h"
-#include "..\handDetector.h"
-#include "..\VideoSequenceCapture.h"
-#include "..\Timer.h"
-#include "..\Debug.h"
-
-// Отключаем предупреждение компилятора о константных условиях
-// в циклах, чтобы использовать бесконечные циклы.
-__pragma(warning(disable:4127));
+#include <ViBe_plus.h>
+#include <deletenoise.h>
+#include <Contour.h>
+#include <CorrectionOfExposition.h>
+#include <handDetector.h>
+#include <VideoSequenceCapture.h>
+#include <Timer.h>
+#include <Debug.h>
 
 using namespace std;
 using namespace cv;
 
 const uchar ForeGround = 255;
 
-void main()
+int main()
 {
     Timer total_timer, exposition_timer, motion_timer, contours_timer, detector_timer;
     VideoCapture video(0);
@@ -90,7 +86,7 @@ void main()
         contoursShow("Contours", contours_image);
 
         result_image.setTo(0);
-        for (int i = 0; i < contours.size(); ++i)
+        for (size_t i = 0; i < contours.size(); ++i)
         {
             // Распознавание руки.
             detector_timer.start();
@@ -125,5 +121,5 @@ void main()
     time_log << "Hand detection: " << detector_timer.getTime() << " sec." << endl;
     time_log.close();
 
-    return;
+    return 0;
 }

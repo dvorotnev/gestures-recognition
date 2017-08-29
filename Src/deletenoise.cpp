@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "deletenoise.h"
+#include <deletenoise.h>
 
 using namespace cv;
 using namespace std;
@@ -165,7 +165,7 @@ static int mergeObjects(int top, int left, vector<int>& parents)
 
 static void setLabels(vector<int>& table, vector<int>& square, int min_area)
 {
-    for (int i = 0; i < table.size(); ++i)
+    for (size_t i = 0; i < table.size(); ++i)
     {
         if (table[i] == -1) continue;
 
@@ -180,7 +180,7 @@ static void setLabels(vector<int>& table, vector<int>& square, int min_area)
     }
 
     // Устанавливаем объекту нужную метку.
-    for (int i = 0; i < table.size(); ++i)
+    for (size_t i = 0; i < table.size(); ++i)
     {
         if (table[i] == -1)
             table[i] = i + 1;
@@ -189,13 +189,13 @@ static void setLabels(vector<int>& table, vector<int>& square, int min_area)
     }
 
     // Если площадь объекта меньше порога, то удаляем его.
-    for (int i = 0; i < table.size(); ++i)
+    for (size_t i = 0; i < table.size(); ++i)
     {
         if ((square[i] < min_area) && (square[i] != 0))
         {
-            for (int j = 0; j < table.size(); ++j)
+            for (size_t j = 0; j < table.size(); ++j)
             {
-                if (table[j] == i + 1)
+                if ((size_t)table[j] == i + 1)
                     table[j] = BackGround;
             }
         }

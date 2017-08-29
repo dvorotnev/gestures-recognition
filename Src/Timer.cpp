@@ -2,7 +2,7 @@
     Реализация таймера для измерения производительности.
 */
 
-#include "Timer.h"
+#include <Timer.h>
 
 using namespace cv;
 

@@ -4,8 +4,8 @@
 
 #include <assert.h>
 
-#include "Contour.h"
-#include "Debug.h"
+#include <Contour.h>
+#include <Debug.h>
 
 using namespace std;
 using namespace cv;
@@ -199,7 +199,7 @@ Contour::Contour(Mat& image, Point2i& point) : start_(point), chain_code_()
         // Инвертируем записанные элементы и меняем начало.
         if (i == 0)
         {
-            for (int j = 0; j < chain_code_.size(); ++j)
+            for (size_t j = 0; j < chain_code_.size(); ++j)
             {
                 const int direction = chain_code_[j];
                 const int inverse_direction = (direction + 4) % 8;
@@ -223,7 +223,7 @@ int Contour::getContour(vector<Point2i>& points) const
 {
     points.resize(length());
     points[0] = start_;
-    for (int i = 0; i < length() - 1; ++i)
+    for (size_t i = 0; i < length() - 1; ++i)
     {
         if (DecodeDirection(points[i], points[i + 1], chain_code_[i]) != 0)
             return -1;
@@ -260,13 +260,13 @@ void Contour::printContour(Mat& image, uchar label) const
     }
 }
 
-int Contour::getContourPoint(Point2i& point, int point_index) const
+int Contour::getContourPoint(Point2i& point, size_t point_index) const
 {
     if (point_index > length())
         return -1;
 
     Point2i result = start_;
-    for (int i = 0; i < point_index; ++i)
+    for (size_t i = 0; i < point_index; ++i)
     {
         DecodeDirection(result, result, chain_code_[i]);
     }
@@ -275,13 +275,13 @@ int Contour::getContourPoint(Point2i& point, int point_index) const
     return 0;
 }
 
-int Contour::getContourPoints(vector<Point2i>& points, vector<int>& point_indexes) const
+int Contour::getContourPoints(vector<Point2i>& points, vector<size_t>& point_indexes) const
 {
     size_t size = point_indexes.size();
     points.resize(size);
 
     int result = 0;
-    for (int i = 0; i < size; ++i)
+    for (size_t i = 0; i < size; ++i)
     {
         result = getContourPoint(points[i], point_indexes[i]);
         if (result != 0)
