@@ -2,7 +2,7 @@
 Реализация алгоритма поиска контуров на бинарном изображении.
 */
 
-#include "Contour.h"
+#include <Contour.h>
 
 using namespace std;
 using namespace cv;

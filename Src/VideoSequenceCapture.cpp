@@ -2,7 +2,7 @@
     Реализация модуля последовательного воспроизведения кадров видеопоследовательности.
 */
 
-#include "VideoSequenceCapture.h"
+#include <VideoSequenceCapture.h>
 
 using namespace cv;
 

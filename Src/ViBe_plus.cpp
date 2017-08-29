@@ -2,9 +2,9 @@
     Реализация алгоритма сегментации движения ViBe_plus.
 */
 
-#include "ViBe_plus.h"
+#include <ViBe_plus.h>
 
-#include "../../deletenoise.h"
+#include <deletenoise.h>
 
 using namespace cv;
 

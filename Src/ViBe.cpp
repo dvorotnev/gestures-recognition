@@ -2,7 +2,7 @@
     Реализация алгоритма сегментации движения ViBe.
 */
 
-#include "ViBe.h"
+#include <ViBe.h>
 
 using namespace cv;
 
@@ -56,7 +56,7 @@ void ViBe::getBackgroundImage(cv::OutputArray &image) const
     return;
 }
 
-inline bool ViBe::needToInit()
+bool ViBe::needToInit()
 {
     return !initialized_;
 }
@@ -155,7 +155,7 @@ void ViBe::updatePixel(const Mat& image, int y, int x)
 {
     const uchar* src = image.ptr(y);
     Point3_<uchar> pixel(src[x * 3], src[x * 3 + 1], src[x * 3 + 2]);
-        
+
     int rand_number = generator_.uniform(0, probability_);
     if (rand_number == 0)
     {

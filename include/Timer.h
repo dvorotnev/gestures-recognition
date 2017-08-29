@@ -5,7 +5,7 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
-#include <core.hpp>
+#include <opencv2\core.hpp>
 
 class Timer
 {

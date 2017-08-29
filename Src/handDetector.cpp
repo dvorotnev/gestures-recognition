@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-#include "handDetector.h"
+#include <handDetector.h>
 
 using namespace std;
 using namespace cv;

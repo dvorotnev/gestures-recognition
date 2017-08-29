@@ -3,18 +3,21 @@
 */
 
 #include <fstream>
-#include <highgui.hpp>
 #include <direct.h>
+#include <opencv2\highgui.hpp>
 
-#include "graphUtils\GraphUtils.h"
+#include <graphUtils\GraphUtils.h>
 
-#include "Debug.h"
+#include <Debug.h>
 
 using namespace cv;
 
 static unsigned int debug_frame_counter = 0;
+
+#if ___DEBUG___
 static uchar BackGround = 0;
 static uchar ForeGround = 255;
+#endif // ___DEBUG___
 
 void imageWrite(const String& name, const Mat& mat)
 {

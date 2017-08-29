@@ -6,9 +6,9 @@
 #define __HANDDETECTOR_H__
 
 #include <vector>
-#include <core.hpp>
+#include <opencv2\core.hpp>
 
-#include "Contour.h"
+#include <Contour.h>
 
 struct Finger
 {
