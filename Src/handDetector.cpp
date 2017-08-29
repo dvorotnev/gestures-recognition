@@ -108,7 +108,7 @@ static int countLocalMax(const vector<float>& extremums, float min_threshold, fl
     float prev = 0; // Предыдущее значение в точке экстремума.
     bool search_max = true; // Флаг, указывающий ищется максимум или минимум.
 
-    for (int i = 0; i < length - 1; ++i)
+    for (size_t i = 0; i < length - 1; ++i)
     {
         const float current = extremums[i];
         if (search_max)
@@ -140,13 +140,13 @@ static int findExtremums(const vector<float>& curvature, vector<float>& extremum
     vector<float> derivative(length, 0.0);
     derivative[0] = curvature[1] - curvature[0];
     derivative[length - 1] = curvature[length - 1] - curvature[length - 2];
-    for (int i = 1; i < length - 1; ++i)
+    for (size_t i = 1; i < length - 1; ++i)
     {
         derivative[i] = (curvature[i + 1] - curvature[i - 1]) / 2;
     }
 
     // Находим экстремумы с помощью пересечения нуля.
-    for (int i = 0; i < length - 1; ++i)
+    for (size_t i = 0; i < length - 1; ++i)
     {
         if (derivative[i] * derivative[i + 1] > 0)
             continue;
@@ -178,19 +178,19 @@ int handDetector(const Contour& contour, float min_treshold, float max_trethold,
         return 1;
     }
 
-    vector<int> fingers(9, 0);
-    for (int i = 0; i < 9; ++i)
+    vector<size_t> fingers(9, 0);
+    for (size_t i = 0; i < 9; ++i)
     {
         float max = 0.0;
         int index = 0;
-        for (int j = i; j < extremums.size(); ++j)
+        for (size_t j = i; j < extremums.size(); ++j)
         {
             if (extremums[j] < max)
                 continue;
 
             // Отсеиваем максимумы, обнаруженные ранее
             bool local = false;
-            for (int k = 0; k < i; ++k)
+            for (size_t k = 0; k < i; ++k)
             {
                 if (abs(fingers[k] - extremum_indexes[j]) < 50)
                 {

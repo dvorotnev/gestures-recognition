@@ -1,6 +1,3 @@
-#Ignore files build by Visual Studio
-
-**/*.hgignore
 .tags*
 /result/
 /build/

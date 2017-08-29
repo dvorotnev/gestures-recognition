@@ -11,10 +11,6 @@
 #include <Timer.h>
 #include <Debug.h>
 
-// Отключаем предупреждение компилятора о константных условиях
-// в циклах, чтобы использовать бесконечные циклы.
-//__pragma(warning(disable:4127));
-
 using namespace std;
 using namespace cv;
 

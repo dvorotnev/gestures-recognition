@@ -22,9 +22,9 @@ public:
     // Функция рисует контур на заданном изображении.
     void printContour(cv::Mat& image, uchar label) const;
     // Функция возвращает точку контура с заданным индексом.
-    int getContourPoint(cv::Point2i& point, int point_index) const;
+    int getContourPoint(cv::Point2i& point, size_t point_index) const;
     // Функция возвращает вектор точек контура с индексами из вектора индексов.
-    int getContourPoints(std::vector<cv::Point2i>& points, std::vector<int>& point_indexes) const;
+    int getContourPoints(std::vector<cv::Point2i>& points, std::vector<size_t>& point_indexes) const;
 private:
     // Начало контура.
     cv::Point2i start_;

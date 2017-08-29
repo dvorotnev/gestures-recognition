@@ -20,7 +20,7 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
     contour.getContour(points);
 
     curvature.resize(length, 0);
-    for (int i = 0; i < length; ++i)
+    for (size_t i = 0; i < length; ++i)
     {
         // Вычисляем координаты концов хорды.
         const int first_point = i - chord_length + 2;
@@ -32,11 +32,11 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
             int start_index = first_point + shift;
             if (start_index < 0)
                 start_index = 0;
-            else if (start_index >= length)
+            else if (start_index >= (int)length)
                 start_index = (int)length - 1;
 
             int end_index = last_point + shift;
-            if (end_index >= length)
+            if (end_index >= (int)length)
                 end_index = (int)length - 1;
 
             // Вычисляем расстояние от точки до хорды.
