@@ -18,8 +18,8 @@ static Point2i midPoint(const Point2i& first, const Point2i second)
 
 Hand::Hand(const vector<Point2i>& points)
 {
-    double first_difference = norm(points[1] - points[2]) - norm(points[2] - points[3]);
-    double second_difference = norm(points[5] - points[6]) - norm(points[6] - points[7]);
+    double first_difference = abs(norm(points[1] - points[2]) - norm(points[2] - points[3]));
+    double second_difference = abs(norm(points[5] - points[6]) - norm(points[6] - points[7]));
 
     // Средний палец
     fingers[2].peak = points[4];
@@ -133,7 +133,7 @@ static int countLocalMax(const vector<float>& extremums, float min_threshold, fl
     return counter;
 }
 
-static int findExtremums(const vector<float>& curvature, vector<float>& extremums, vector<int>& extremum_indexes)
+static int findExtremums(const vector<float>& curvature, vector<float>& extremums, vector<size_t>& extremum_indexes)
 {
     const size_t length = curvature.size();
     // Вычисляем первую производную в каждой точке функции кривизны.
@@ -169,7 +169,7 @@ int handDetector(const Contour& contour, float min_treshold, float max_trethold,
         return -1;
 
     vector<float> extremums;
-    vector<int> extremum_indexes;
+    vector<size_t> extremum_indexes;
     findExtremums(curvature, extremums, extremum_indexes);
 
     int counter = countLocalMax(extremums, min_treshold, max_trethold);
@@ -182,7 +182,7 @@ int handDetector(const Contour& contour, float min_treshold, float max_trethold,
     for (size_t i = 0; i < 9; ++i)
     {
         float max = 0.0;
-        int index = 0;
+        size_t index = 0;
         for (size_t j = i; j < extremums.size(); ++j)
         {
             if (extremums[j] < max)
@@ -192,7 +192,8 @@ int handDetector(const Contour& contour, float min_treshold, float max_trethold,
             bool local = false;
             for (size_t k = 0; k < i; ++k)
             {
-                if (abs(fingers[k] - extremum_indexes[j]) < 50)
+                int difference = abs((int)fingers[k] - (int)extremum_indexes[j]);
+                if (difference < 50)
                 {
                     local = true;
                     break;

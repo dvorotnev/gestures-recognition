@@ -184,7 +184,7 @@ Contour::Contour(Mat& image, Point2i& point) : start_(point), chain_code_()
     {
         Point2i current_point = { 0 };
         Point2i next_point = { 0 };
-        int direction = findDirection(image, start_, next_point);
+        int direction = findDirection(image, point, next_point);
 
         // Ищем точки контура.
         while (direction != -1)
