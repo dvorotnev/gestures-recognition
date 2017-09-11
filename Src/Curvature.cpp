@@ -16,8 +16,7 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
     if (length < 4)
         return -1;
 
-    vector<Point2i> points;
-    contour.getContour(points);
+    vector<Point2i> points = contour.getContour();
 
     curvature.resize(length, 0);
     for (size_t i = 0; i < length; ++i)

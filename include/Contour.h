@@ -14,17 +14,17 @@ class Contour
 public:
     // Функция считывает контур, содержащий заданную точку, с изображения
     // при помощи морфологических преобразований.
-    Contour(cv::Mat& image, cv::Point2i& point);
+    Contour(cv::Mat& image, const cv::Point2i& point);
 
     size_t length() const;
     // Возвращает вектор точек контура.
-    int getContour(std::vector<cv::Point2i>& points) const;
+    std::vector<cv::Point2i> getContour() const;
     // Функция рисует контур на заданном изображении.
     void printContour(cv::Mat& image, uchar label) const;
     // Функция возвращает точку контура с заданным индексом.
-    int getContourPoint(cv::Point2i& point, size_t point_index) const;
+    cv::Point2i getContourPoint(size_t point_index) const;
     // Функция возвращает вектор точек контура с индексами из вектора индексов.
-    int getContourPoints(std::vector<cv::Point2i>& points, std::vector<size_t>& point_indexes) const;
+    std::vector<cv::Point2i> getContourPoints(std::vector<size_t>& point_indexes) const;
 private:
     // Начало контура.
     cv::Point2i start_;
@@ -33,7 +33,7 @@ private:
 };
 
 // Поиск контуров на изображении.
-void extractContours(cv::InputArray& BinImage, std::vector<Contour>& contours);
+std::vector<Contour> extractContours(cv::InputArray& BinImage);
 // Функция рисует все контуры на изображении.
 void printContours(cv::Mat& image, const std::vector<Contour>& contours);
 // Функция упорядочивает контуры по убыванию длины.

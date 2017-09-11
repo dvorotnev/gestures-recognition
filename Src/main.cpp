@@ -1,4 +1,5 @@
 ﻿#include <fstream>
+#include <optional>
 #include <opencv2\highgui.hpp>
 #include <opencv2\video\video.hpp>
 
@@ -78,8 +79,7 @@ int main()
                                            1, 1, 1 };
         morphologyEx(fgmask, fgmask, MORPH_OPEN, kernel_open);
         imageWrite("Open", fgmask);
-        vector<Contour> contours;
-        extractContours(fgmask, contours);
+        vector<Contour> contours = extractContours(fgmask);
         sortContours(contours);
         printContours(contours_image, contours);
         contours_timer.stop();
@@ -90,13 +90,12 @@ int main()
         {
             // Распознавание руки.
             detector_timer.start();
-            Hand hand;
-            int is_hand = handDetector(contours[i], 15, 25, 7, 11, hand);
+            optional<Hand> hand = handDetector(contours[i], 15, 25, 7, 11);
             detector_timer.stop();
-            if (is_hand == 0)
+            if (hand)
             {
                 contours[i].printContour(result_image, ForeGround);
-                hand.print(result_image);
+                hand->print(result_image);
             }
         }
 

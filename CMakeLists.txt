@@ -12,7 +12,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 file(GLOB SOURCES src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_compile_options(${PROJECT_NAME} PUBLIC -std=c++11 -Wall -Wextra -pedantic -Werror -Wno-unused-parameter)
+target_compile_options(${PROJECT_NAME} PUBLIC -std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-parameter)
 
 target_link_libraries(${PROJECT_NAME} graphUtils)
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
