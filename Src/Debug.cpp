@@ -102,7 +102,7 @@ void curvatureShow(const String& winname, const std::vector<float>& curvature)
     file_name = file_name + "\\" + frame_counter_str + ".txt";
     std::ofstream file(file_name);
 
-    for (int i = 0; i < curvature.size(); ++i)
+    for (size_t i = 0; i < curvature.size(); ++i)
     {
         file << curvature[i] << " ";
     }

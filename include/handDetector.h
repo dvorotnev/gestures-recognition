@@ -6,6 +6,7 @@
 #define __HANDDETECTOR_H__
 
 #include <vector>
+#include <optional>
 #include <opencv2\core.hpp>
 
 #include <Contour.h>
@@ -23,8 +24,6 @@ struct Finger
 class Hand
 {
 public:
-    // TODO: Убрать после рефакторинга.
-    Hand() {};
     // Создание объекта руки по точкам пальцев.
     Hand(const std::vector<cv::Point2i>& points);
     // Отрисовка точек пальцев на изображении.
@@ -44,12 +43,7 @@ private:
         max_trethold - наименьшее значение для максимума;
         min_counter  - минимальное количество локальных максимумов;
         max_counter  - максимальное количество локальных максимумов.
-
-    Выходное значение:
-        1 - контур является контуром руки;
-        0 - контур не является контуром руки;
-       -1 - ошибка.
 */
-int handDetector(const Contour& contour, float min_treshold, float max_trethold, int min_counter, int max_counter, Hand& hand);
+std::optional<Hand> handDetector(const Contour& contour, float min_treshold, float max_trethold, int min_counter, int max_counter);
 
 #endif // __HANDDETECTOR_H__
