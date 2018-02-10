@@ -74,9 +74,12 @@ int main()
 
         // Извлечение контуров.
         contours_timer.start();
-        Matx <uchar, 3, 3> kernel_open = { 1, 1, 1,
-                                           1, 1, 1,
-                                           1, 1, 1 };
+        const uchar kernel_values[25] = { 1, 1, 1, 1, 1,
+                                          1, 1, 1, 1, 1,
+                                          1, 1, 1, 1, 1,
+                                          1, 1, 1, 1, 1,
+                                          1, 1, 1, 1, 1 };
+        Matx <uchar, 5, 5> kernel_open(kernel_values);
         morphologyEx(fgmask, fgmask, MORPH_OPEN, kernel_open);
         imageWrite("Open", fgmask);
         vector<Contour> contours = extractContours(fgmask);
@@ -103,7 +106,8 @@ int main()
 
         total_timer.stop();
         int c = waitKey(30);
-        if (c == 27) break;
+        if (c == 27)
+            break;
     }
 
     frame.release();
