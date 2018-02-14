@@ -52,7 +52,7 @@ static int codeDirection(const Point2i& first, const Point2i& second)
 }
 
 // Функция декодирует направление между двумя точками.
-static Point2i DecodeDirection(const Point2i& point, const int code)
+static Point2i decodeDirection(const Point2i& point, const int code)
 {
     if ((code > 7) || (code < 0))
         throw;
@@ -104,110 +104,44 @@ static Point2i DecodeDirection(const Point2i& point, const int code)
     return result;
 }
 
-// Поиск направления, в котором расположены точки контура.
-static optional<pair<int, Point2i>> findDirection(const Mat& image, const Point2i& start)
+Contour::Contour(const Mat& image, const Point2i& point) : start_(point), chain_code_()
 {
-    for (int y = start.y - 1; y <= start.y + 1; ++y)
-    {
-        if ((y < 0) || (y >= image.rows))
-            continue;
+    Point2i current_contour = point;
+    Point2i current_bg = {point.x - 1, point.y};
 
-        const uchar* image_ptr = image.ptr(y);
-        for (int x = start.x - 1; x <= start.x + 1; ++x)
+    while (true)
+    {
+        int direction = codeDirection(current_contour, current_bg);
+        int next_chain = 0;
+
+        // Просматриваем 8ку соседей по часовой стрелке, начиная с точки фона.
+        for (int i = 1; i <= 7; ++i)
         {
-            if ((x < 0) || (x >= image.cols))
-                continue;
-            if ((x == start.x) && (y == start.y))
-                continue;
-            if (image_ptr[x] == ForeGround)
+            int new_direction = (direction + i) % 8;
+            Point2i next_point = decodeDirection(current_contour, new_direction);
+
+            if (next_point.x < 0 || next_point.x >= image.cols || next_point.y < 0 || next_point.y >= image.rows)
             {
-                Point2i next_point(x, y);
-                int direction = codeDirection(start, next_point);
-                return pair(direction, next_point);
-            }
-        }
-    }
-
-    return {};
-}
-
-// Функция для нахождения следующей точки контура на изображении.
-static optional<pair<int, Point2i>> findNextPoint(const Mat& image,
-                                                  const Point2i& current_point,
-                                                  const int last_direction)
-{
-    if ((last_direction > 7) || (last_direction < 0))
-        throw;
-
-    // Массив всех возможных направлений в порядке
-    // наиболее вероятного поялвения.
-    int directions_queue[7] = { last_direction,
-        last_direction + 1, last_direction - 1,
-        last_direction + 2, last_direction - 2,
-        last_direction + 3, last_direction - 3 };
-
-    // Приводим значения направлений в диапазон от 0 до 7.
-    for (int i = 0; i < 7; ++i)
-    {
-        if (directions_queue[i] > 7)
-            directions_queue[i] -= 8;
-        else if (directions_queue[i] < 0)
-            directions_queue[i] += 8;
-    }
-
-    // Ищем следующую точку среди возможных направлений.
-    Point2i next_point(0, 0);
-    for (int i = 0; i < 7; ++i)
-    {
-        next_point = DecodeDirection(current_point, directions_queue[i]);
-
-        if ((next_point.x < 0) || (next_point.x >= image.cols) ||
-            (next_point.y < 0) || (next_point.y >= image.rows))
-            continue;
-
-        const uchar* ptr = image.ptr(next_point.y);
-        if (ptr[next_point.x] == ForeGround)
-            return pair(directions_queue[i], next_point);
-    }
-
-    return {};
-}
-
-// Функция считывает точки контура, у которого задано начало, и удаляет его с изображения.
-Contour::Contour(Mat& image, const Point2i& point) : start_(point), chain_code_()
-{
-    uchar* ptr = image.ptr(start_.y);
-    ptr[start_.x] = Background;
-
-    for (int i = 0; i < 2; ++i)
-    {
-        Point2i current_point = { 0 };
-        auto next_point = findDirection(image, point);
-
-        // Ищем точки контура.
-        while (next_point)
-        {
-            int direction = get<int>(*next_point);
-            current_point = get<Point2i>(*next_point);
-            chain_code_.push_back(direction);
-            uchar* ptr = image.ptr(current_point.y);
-            ptr[current_point.x] = Background;
-            next_point = findNextPoint(image, current_point, direction);
-        }
-
-        // Инвертируем записанные элементы и меняем начало.
-        if (i == 0)
-        {
-            for (size_t j = 0; j < chain_code_.size(); ++j)
-            {
-                const int direction = chain_code_[j];
-                const int inverse_direction = (direction + 4) % 8;
-                chain_code_[j] = inverse_direction;
+                current_bg = next_point;
+                continue;
             }
 
-            reverse(chain_code_.begin(), chain_code_.end());
-            start_ = current_point;
+            uchar value = image.ptr(next_point.y)[next_point.x];
+            if (value == Background)
+            {
+                current_bg = next_point;
+                continue;
+            }
+
+            next_chain = new_direction;
+            if (chain_code_.size() > 0 && current_contour == start_ && next_chain == chain_code_[0])
+                return;
+
+            current_contour = next_point;
+            break;
         }
+
+        chain_code_.push_back(next_chain);
     }
 
     return;
@@ -224,7 +158,7 @@ vector<Point2i> Contour::getContour() const
     points[0] = start_;
     for (size_t i = 0; i < length() - 1; ++i)
     {
-        points[i + 1] = DecodeDirection(points[i], chain_code_[i]);
+        points[i + 1] = decodeDirection(points[i], chain_code_[i]);
     }
 
     return points;
@@ -243,7 +177,7 @@ void Contour::printContour(Mat& image, uchar label) const
     Point2i next_point(-1, -1);
     for (vector<int>::const_iterator i = chain_code_.begin(); i != chain_code_.end(); ++i)
     {
-        next_point = DecodeDirection(point, *i);
+        next_point = decodeDirection(point, *i);
         assert((next_point.x >= 0) && (next_point.x < image.cols) &&
                (next_point.y >= 0) && (next_point.y < image.rows));
 
@@ -265,7 +199,7 @@ Point2i Contour::getContourPoint(size_t point_index) const
     Point2i result = start_;
     for (size_t i = 0; i < point_index; ++i)
     {
-        result = DecodeDirection(result, chain_code_[i]);
+        result = decodeDirection(result, chain_code_[i]);
     }
 
     return result;
@@ -294,7 +228,7 @@ vector<Contour> extractContours(InputArray& BinImage)
                                         0, 1, 0 };
 
     Mat contours_image(image.rows, image.cols, CV_8U);
-    erode(image, contours_image, kernel_erode);
+    erode(image, contours_image, kernel_erode, Point(-1,-1), 1, BORDER_CONSTANT, Background);
     contours_image = image - contours_image;
     imageWrite("Erode", contours_image);
 
@@ -310,6 +244,8 @@ vector<Contour> extractContours(InputArray& BinImage)
 
             Point2i point(x, y);
             Contour current(contours_image, point);
+            // Удаляем контур с изображения.
+            current.printContour(contours_image, Background);
             if (current.length() >= 4)
                 contours.push_back(current);
         }

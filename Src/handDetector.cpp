@@ -70,9 +70,15 @@ static void printRing(Mat& image, const Point2i& center, int big_radius, int lit
 {
     for (int y = center.y - big_radius; y <= center.y + big_radius; ++y)
     {
+        if (y < 0 || y >= image.rows)
+            continue;
+
         uchar* ptr = image.ptr(y);
         for (int x = center.x - big_radius; x <= center.x + big_radius; ++x)
         {
+            if (x < 0 || x >= image.cols)
+                continue;
+
             int distance = (y - center.y) * (y - center.y);
             distance += (x - center.x) * (x - center.x);
             if (distance >= little_radius && distance <= big_radius)

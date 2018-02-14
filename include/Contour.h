@@ -12,9 +12,8 @@
 class Contour
 {
 public:
-    // Функция считывает контур, содержащий заданную точку, с изображения
-    // при помощи морфологических преобразований.
-    Contour(cv::Mat& image, const cv::Point2i& point);
+    // Реализация алгоритма прослеживания границы.
+    Contour(const cv::Mat& image, const cv::Point2i& point);
 
     size_t length() const;
     // Возвращает вектор точек контура.
