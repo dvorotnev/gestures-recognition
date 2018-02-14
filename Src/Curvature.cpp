@@ -42,6 +42,13 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
             const Point2i chord = points[end_index] - points[start_index];
             const Point2i point_to_chord = points[i] - points[start_index];
 
+            // Отбрасываем хорды, которые касаются края изображения
+            if (points[end_index].x == 0 || points[end_index].y == 0 ||
+                points[start_index].x == 0 || points[start_index].y == 0)
+            {
+                continue;
+            }
+
             double distance = abs(point_to_chord.x * chord.y -
                                   point_to_chord.y * chord.x);
             distance /= sqrt(chord.x * chord.x + chord.y * chord.y);
