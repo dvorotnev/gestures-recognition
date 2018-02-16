@@ -30,9 +30,9 @@ public:
     void print(cv::Mat& image);
 private:
     // Массив пальцев руки.
-    Finger fingers[5];
-    // Флаг, равные true, если рука находится ладонью к камере.
-    bool at_front;
+    Finger fingers_[5];
+    // Точка на запястье.
+    cv::Point2i wrist_;
 };
 
 /*
