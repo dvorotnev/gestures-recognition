@@ -9,61 +9,75 @@
 using namespace std;
 using namespace cv;
 
-static Point2i midPoint(const Point2i& first, const Point2i second)
+// Функция вычисления средней точки между двумя заданными.
+static Point2i midPoint(const Point2i& first, const Point2i& second)
 {
     int x = (first.x + second.x) / 2;
     int y = (first.y + second.y) / 2;
     return Point2i(x, y);
 }
 
+// Функция заполнения структуры пальца.
+static void fillFinger(Finger& finger, const Point2i& start, const Point2i& peak, double length)
+{
+    finger.start = start;
+    finger.peak = peak;
+    finger.length = length;
+    return;
+}
+
+// Проектирование точки на прямую, заданную двумя точками.
+static Point2i projection(const Point2i& line_start, const Point2i& line_end, const Point2i& point)
+{
+    Point2i line_vec = line_end - line_start;
+    Point2i point_vec = point - line_start;
+    double coef = line_vec.x * point_vec.x + line_vec.y * point_vec.y;
+    coef /= line_vec.x * line_vec.x + line_vec.y * line_vec.y;
+    Point2i result = line_vec * coef + line_start;
+    return result;
+}
+
 Hand::Hand(const vector<Point2i>& points)
 {
+    if (points.size() != 9)
+        throw;
+
     double first_difference = abs(norm(points[1] - points[2]) - norm(points[2] - points[3]));
     double second_difference = abs(norm(points[5] - points[6]) - norm(points[6] - points[7]));
-
-    // Средний палец
-    fingers[2].peak = points[4];
-    fingers[2].start = midPoint(points[3], points[5]);
-    fingers[2].length = norm(points[4] - fingers[2].start);
 
     if (first_difference > second_difference)
     {
         // Большой палец
-        fingers[0].peak = points[0];
-        fingers[0].start = points[1];
-        fingers[0].length = norm(points[0] - points[1]);
+        fillFinger(fingers_[0], points[1], points[0], norm(points[0] - points[1]));
         // Указательный палец
-        fingers[1].peak = points[2];
-        fingers[1].start = points[3];
-        fingers[1].length = norm(points[2] - points[3]);
-        // Безымянный палец
-        fingers[3].peak = points[6];
-        fingers[3].start = midPoint(points[5], points[7]);
-        fingers[3].length = norm(points[6] - fingers[3].start);
+        fillFinger(fingers_[1], points[3], points[2], norm(points[2] - points[3]));
         // Мизинец
-        fingers[4].peak = points[8];
-        fingers[4].start = points[7];
-        fingers[4].length = norm(points[8] - points[7]);
+        fillFinger(fingers_[4], points[7], points[8], norm(points[8] - points[7]));
+        // Безымянный палец
+        Point2i mid_point = midPoint(points[5], points[7]);
+        mid_point = projection(fingers_[1].start, fingers_[4].start, mid_point);
+        fillFinger(fingers_[3], mid_point, points[6], norm(points[6] - mid_point));
     }
     else
     {
         // Большой палец
-        fingers[0].peak = points[8];
-        fingers[0].start = points[7];
-        fingers[0].length = norm(points[8] - points[7]);
+        fillFinger(fingers_[0], points[7], points[8], norm(points[8] - points[7]));
         // Указательный палец
-        fingers[1].peak = points[6];
-        fingers[1].start = points[5];
-        fingers[1].length = norm(points[6] - points[5]);
-        // Безымянный палец
-        fingers[3].peak = points[2];
-        fingers[3].start = midPoint(points[1], points[3]);
-        fingers[3].length = norm(points[2] - fingers[3].start);
+        fillFinger(fingers_[1], points[5], points[6], norm(points[6] - points[5]));
         // Мизинец
-        fingers[4].peak = points[0];
-        fingers[4].start = points[1];
-        fingers[4].length = norm(points[0] - points[1]);
+        fillFinger(fingers_[4], points[1], points[0], norm(points[0] - points[1]));
+        // Безымянный палец
+        Point2i mid_point = midPoint(points[1], points[3]);
+        mid_point = projection(fingers_[1].start, fingers_[4].start, mid_point);
+        fillFinger(fingers_[3], mid_point, points[2], norm(points[2] - mid_point));
     }
+
+    // Средний палец
+    Point2i mid_point = midPoint(points[3], points[5]);
+    mid_point = projection(fingers_[1].start, fingers_[4].start, mid_point);
+    fillFinger(fingers_[2], mid_point, points[4], norm(points[4] - mid_point));
+
+    wrist_ = fingers_[2].start + 1.1 * (fingers_[2].start - fingers_[2].peak);
 }
 
 static void printRing(Mat& image, const Point2i& center, int big_radius, int little_radius)
@@ -91,20 +105,23 @@ static void printRing(Mat& image, const Point2i& center, int big_radius, int lit
 
 void Hand::print(Mat& image)
 {
-    printRing(image, fingers[0].peak, 30, 20);
-    printRing(image, fingers[0].start, 30, 20);
+    printRing(image, fingers_[0].peak, 30, 20);
+    printRing(image, fingers_[0].start, 30, 20);
 
-    printRing(image, fingers[1].peak, 25, 15);
-    printRing(image, fingers[1].start, 25, 15);
+    printRing(image, fingers_[1].peak, 25, 15);
+    printRing(image, fingers_[1].start, 25, 15);
 
-    printRing(image, fingers[2].peak, 20, 10);
-    printRing(image, fingers[2].start, 20, 10);
+    printRing(image, fingers_[2].peak, 20, 10);
+    printRing(image, fingers_[2].start, 20, 10);
 
-    printRing(image, fingers[3].peak, 15, 5);
-    printRing(image, fingers[3].start, 15, 5);
+    printRing(image, fingers_[3].peak, 15, 5);
+    printRing(image, fingers_[3].start, 15, 5);
 
-    printRing(image, fingers[4].peak, 10, 0);
-    printRing(image, fingers[4].start, 10, 0);
+    printRing(image, fingers_[4].peak, 10, 0);
+    printRing(image, fingers_[4].start, 10, 0);
+
+
+    printRing(image, wrist_, 50, 0);
 
     return;
 }
