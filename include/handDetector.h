@@ -28,6 +28,9 @@ public:
     Hand(const std::vector<cv::Point2i>& points);
     // Отрисовка точек пальцев на изображении.
     void print(cv::Mat& image);
+    // Возвращает прямоугольник, содержащий руку.
+    cv::Rect2i getBoundingBox();
+
 private:
     // Массив пальцев руки.
     Finger fingers_[5];

@@ -99,6 +99,8 @@ int main()
             {
                 contours[i].printContour(result_image, ForeGround);
                 hand->print(result_image);
+                Rect2i box = hand->getBoundingBox();
+                rectangle(result_image, box, 255);
             }
         }
 
