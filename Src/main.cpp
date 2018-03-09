@@ -16,12 +16,13 @@ using namespace std;
 using namespace cv;
 
 const uchar ForeGround = 255;
+const uchar Background = 0;
 
 int main()
 {
-    Timer total_timer, exposition_timer, motion_timer, contours_timer, detector_timer;
+    Timer total_timer, exposition_timer, motion_timer, contours_timer, detector_timer, tracker_timer;
     VideoCapture video(0);
-    //VideoSequenceCapture video("d:\\test videos\\output2\\0.png");
+    //VideoSequenceCapture video("d:\\test_videos\\output2\\0.png");
 
     ViBe_plus motion(20, 20, 2, 15);
 
@@ -45,7 +46,11 @@ int main()
     Mat bg_image(frame.size(), CV_8UC3);
     Mat fgmask(frame.size(), CV_8UC1);
     Mat contours_image(frame.size(), CV_8UC1);
-    Mat result_image(frame.size(), CV_8UC1);
+    Mat tracker_image(frame.size(), CV_8UC3);
+    Mat hands_mask(frame.size(), CV_8UC1);
+
+    vector<Hand> hands;
+    vector<Mat> prevPyr, nextPyr;
 
     while (true)
     {
@@ -54,6 +59,7 @@ int main()
         video >> frame;
         if (frame.empty())
             break;
+
         imageShow("Input", frame);
 
         // Коррекция яркости.
@@ -68,12 +74,11 @@ int main()
 
         // Выделение движения.
         motion_timer.start();
-        motion.apply(frame, fgmask, 1.0/15);
+        motion.apply(frame, fgmask, 1.0 / 15);
         motion_timer.stop();
         imageShow("Motion", fgmask);
 
-        // Извлечение контуров.
-        contours_timer.start();
+        // Размыкание маски движущихся объектов.
         const uchar kernel_values[25] = { 1, 1, 1, 1, 1,
                                           1, 1, 1, 1, 1,
                                           1, 1, 1, 1, 1,
@@ -82,13 +87,37 @@ int main()
         Matx <uchar, 5, 5> kernel_open(kernel_values);
         morphologyEx(fgmask, fgmask, MORPH_OPEN, kernel_open);
         imageWrite("Open", fgmask);
-        vector<Contour> contours = extractContours(fgmask);
+
+        // Обновление моделей рук, найденных ранее.
+        tracker_timer.start();
+        frame.copyTo(tracker_image);
+        hands_mask.setTo(ForeGround);
+
+        for (auto& hand : hands)
+        {
+            Rect2i box = hand.getBoundingBox();
+            rectangle(hands_mask, box, Background, FILLED);
+            buildOpticalFlowPyramid(fgmask, nextPyr, Size(31, 31), 1);
+
+            // TODO: Обработать пропадание руки.
+            if (!prevPyr.empty())
+                hand.update(prevPyr, nextPyr);
+
+            hand.print(tracker_image);
+            prevPyr = move(nextPyr);
+        }
+
+        imageShow("Tracker", tracker_image);
+        tracker_timer.stop();
+
+        // Извлечение контуров.
+        contours_timer.start();
+        vector<Contour> contours = extractContours(fgmask, hands_mask);
         sortContours(contours);
         printContours(contours_image, contours);
         contours_timer.stop();
         contoursShow("Contours", contours_image);
 
-        result_image.setTo(0);
         for (size_t i = 0; i < contours.size(); ++i)
         {
             // Распознавание руки.
@@ -96,15 +125,8 @@ int main()
             optional<Hand> hand = handDetector(contours[i], 15, 25, 7, 11);
             detector_timer.stop();
             if (hand)
-            {
-                contours[i].printContour(result_image, ForeGround);
-                hand->print(result_image);
-                Rect2i box = hand->getBoundingBox();
-                rectangle(result_image, box, 255);
-            }
+                hands.push_back(*hand);
         }
-
-        imageShow("Output", result_image);
 
         total_timer.stop();
         int c = waitKey(30);
@@ -124,6 +146,7 @@ int main()
     time_log << "Motion detection: " << motion_timer.getTime() << " sec." << endl;
     time_log << "Contours: " << contours_timer.getTime() << " sec." << endl;
     time_log << "Hand detection: " << detector_timer.getTime() << " sec." << endl;
+    time_log << "Hand tracking: " << tracker_timer.getTime() << " sec." << endl;
     time_log.close();
 
     return 0;

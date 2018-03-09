@@ -218,9 +218,10 @@ vector<Point2i> Contour::getContourPoints(vector<size_t>& point_indexes) const
     return points;
 }
 
-vector<Contour> extractContours(InputArray& BinImage)
+vector<Contour> extractContours(InputArray BinImage, InputArray Mask)
 {
     Mat image(BinImage.getMat());
+    Mat mask(Mask.getMat());
 
     // С помощью бинарной морфологии получаем границы объектов (обводим сверху).
     Matx <uchar, 3, 3> kernel_erode = { 0, 1, 0,
@@ -231,6 +232,8 @@ vector<Contour> extractContours(InputArray& BinImage)
     erode(image, contours_image, kernel_erode, Point(-1,-1), 1, BORDER_CONSTANT, Background);
     contours_image = image - contours_image;
     imageWrite("Erode", contours_image);
+
+    bitwise_and(contours_image, mask, contours_image);
 
     // Записываем все контуры, найденные на изображении.
     vector<Contour> contours;

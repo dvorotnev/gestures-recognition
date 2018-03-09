@@ -9,6 +9,50 @@
 using namespace std;
 using namespace cv;
 
+// Функция вычисления средней точки между двумя заданными.
+static Point2i midPoint(const Point2i& first, const Point2i& second)
+{
+    int x = (first.x + second.x) / 2;
+    int y = (first.y + second.y) / 2;
+    return Point2i(x, y);
+}
+
+// Проектирование точки на прямую, заданную двумя точками.
+static Point2i projection(const Point2i& line_start, const Point2i& line_end, const Point2i& point)
+{
+    Point2i line_vec = line_end - line_start;
+    Point2i point_vec = point - line_start;
+    double coef = line_vec.x * point_vec.x + line_vec.y * point_vec.y;
+    coef /= line_vec.x * line_vec.x + line_vec.y * line_vec.y;
+    Point2i result = line_vec * coef + line_start;
+    return result;
+}
+
+// Вычисление положения точек пальцев с использованием точек максимума кривизны контура.
+static vector<Point2i> getFingers(const vector<Point2i>& max_points)
+{
+    double first_difference = abs(norm(max_points[1] - max_points[2]) - norm(max_points[2] - max_points[3]));
+    double second_difference = abs(norm(max_points[5] - max_points[6]) - norm(max_points[6] - max_points[7]));
+
+    vector<Point2i> fingers = max_points;
+    if (first_difference < second_difference)
+        reverse(fingers.begin(), fingers.end());
+
+    fingers.resize(10);
+
+    // Проекция на линию начала пальцев.
+    Point2i mid_point = projection(max_points[3], max_points[7], max_points[5]);
+    // Средний палец.
+    fingers[5] = midPoint(max_points[3], mid_point);
+    // Безымянный палец.
+    fingers[7] = midPoint(mid_point, max_points[7]);
+
+    // Мизинец.
+    fingers[9] = max_points[7];
+
+    return fingers;
+}
+
 // Функция заполнения структуры пальца.
 static void fillFinger(Finger& finger, const Point2i& start, const Point2i& peak, double length)
 {
@@ -20,21 +64,33 @@ static void fillFinger(Finger& finger, const Point2i& start, const Point2i& peak
 
 Hand::Hand(const vector<Point2i>& points)
 {
-    if (points.size() != 10)
+    if (points.size() != 9)
         throw;
 
-    // Большой палец
-    fillFinger(fingers_[0], points[1], points[0], norm(points[0] - points[1]));
-    // Указательный палец
-    fillFinger(fingers_[1], points[3], points[2], norm(points[2] - points[3]));
-    // Средний палец
-    fillFinger(fingers_[2], points[5], points[4], norm(points[4] - points[5]));
-    // Безымянный палец
-    fillFinger(fingers_[3], points[7], points[6], norm(points[6] - points[7]));
-    // Мизинец
-    fillFinger(fingers_[4], points[9], points[8], norm(points[8] - points[9]));
+    vector<Point2i> fingers_points = getFingers(points);
 
-    wrist_ = fingers_[2].start + 1.1 * (fingers_[2].start - fingers_[2].peak);
+    // Большой палец
+    fillFinger(fingers_[0], fingers_points[1], fingers_points[0], norm(fingers_points[0] - fingers_points[1]));
+    // Указательный палец
+    fillFinger(fingers_[1], fingers_points[3], fingers_points[2], norm(fingers_points[2] - fingers_points[3]));
+    // Средний палец
+    fillFinger(fingers_[2], fingers_points[5], fingers_points[4], norm(fingers_points[4] - fingers_points[5]));
+    // Безымянный палец
+    fillFinger(fingers_[3], fingers_points[7], fingers_points[6], norm(fingers_points[6] - fingers_points[7]));
+    // Мизинец
+    fillFinger(fingers_[4], fingers_points[9], fingers_points[8], norm(fingers_points[8] - fingers_points[9]));
+
+    midle_point_ = (fingers_points[0] == points[0]) ? points[5] : points[3];
+}
+
+Point2i Hand::getWrist() const
+{
+    return fingers_[2].start + 1.1 * (fingers_[2].start - fingers_[2].peak);
+}
+
+const Finger* Hand::getHandFingers() const
+{
+    return fingers_;
 }
 
 // Отрисовка кольца вокруг заданной точки.
@@ -54,7 +110,7 @@ static void printRing(Mat& image, const Point2i& center, int big_radius, int lit
             int distance = (y - center.y) * (y - center.y);
             distance += (x - center.x) * (x - center.x);
             if (distance >= little_radius && distance <= big_radius)
-                ptr[x] = 255;
+                ptr[x * image.channels() + image.channels() - 1] = 255;
         }
     }
 
@@ -78,18 +134,19 @@ void Hand::print(Mat& image)
     printRing(image, fingers_[4].peak, 10, 0);
     printRing(image, fingers_[4].start, 10, 0);
 
-
-    printRing(image, wrist_, 50, 0);
+    printRing(image, midle_point_, 5, 0);
+    printRing(image, getWrist(), 50, 0);
 
     return;
 }
 
 cv::Rect2i Hand::getBoundingBox()
 {
-    int left = wrist_.x;
-    int top = wrist_.y;
-    int right = wrist_.x;
-    int bottom = wrist_.y;
+    Point2i wrist = getWrist();
+    int left = wrist.x;
+    int top = wrist.y;
+    int right = wrist.x;
+    int bottom = wrist.y;
 
     for (const auto& elem : fingers_)
     {
@@ -105,6 +162,48 @@ cv::Rect2i Hand::getBoundingBox()
     top = max(0.0, top - height * 0.1);
     Rect2i result(left, top, width * 1.2, height * 1.2);
     return result;
+}
+
+int Hand::update(vector<Mat>& prevPyr, vector<Mat>& nextPyr)
+{
+    vector<Point2f> prev_pts = {
+        fingers_[0].peak, fingers_[0].start,
+        fingers_[1].peak, fingers_[1].start,
+        fingers_[2].peak, fingers_[3].peak,
+        fingers_[4].peak, fingers_[4].start,
+        midle_point_
+    };
+
+    vector<Point2f> next_pts(prev_pts);
+    vector<uchar> status(10, 0);
+    int levels = min(prevPyr.size(), nextPyr.size());
+
+    calcOpticalFlowPyrLK(prevPyr, nextPyr, prev_pts, next_pts, status, noArray(), Size(31, 31), levels);
+    for (const auto& elem : status)
+    {
+        if (elem != 1)
+            return -1;
+    }
+
+    fingers_[0].peak = next_pts[0];
+    fingers_[0].start = next_pts[1];
+    fingers_[1].peak = next_pts[2];
+    fingers_[1].start = next_pts[3];
+    fingers_[4].peak = next_pts[6];
+    fingers_[4].start = next_pts[7];
+    midle_point_ = next_pts[8];
+
+    // Проекция на линию начала пальцев.
+    Point2i mid_point = projection(fingers_[1].start, fingers_[4].start, midle_point_);
+    // Средний палец.
+    fingers_[2].start = midPoint(next_pts[3], mid_point);
+    fingers_[2].peak = next_pts[4];
+
+    // Безымянный палец.
+    fingers_[3].start = midPoint(mid_point, next_pts[7]);
+    fingers_[3].peak = next_pts[5];
+
+    return 0;
 }
 
 // Подсчёт локальных максимумов, чередующихся локальными минимумами.
@@ -210,80 +309,36 @@ static vector<size_t> findMaxIndexes(vector<float>& values, vector<size_t>& inde
     return max_indexes;
 }
 
-// Функция вычисления средней точки между двумя заданными.
-static Point2i midPoint(const Point2i& first, const Point2i& second)
-{
-    int x = (first.x + second.x) / 2;
-    int y = (first.y + second.y) / 2;
-    return Point2i(x, y);
-}
-
-// Проектирование точки на прямую, заданную двумя точками.
-static Point2i projection(const Point2i& line_start, const Point2i& line_end, const Point2i& point)
-{
-    Point2i line_vec = line_end - line_start;
-    Point2i point_vec = point - line_start;
-    double coef = line_vec.x * point_vec.x + line_vec.y * point_vec.y;
-    coef /= line_vec.x * line_vec.x + line_vec.y * line_vec.y;
-    Point2i result = line_vec * coef + line_start;
-    return result;
-}
-
-// Вычисление положения точек пальцев с использованием точек максимума кривизны контура.
-static vector<Point2i> getFingers(const vector<Point2i>& max_points)
-{
-    double first_difference = abs(norm(max_points[1] - max_points[2]) - norm(max_points[2] - max_points[3]));
-    double second_difference = abs(norm(max_points[5] - max_points[6]) - norm(max_points[6] - max_points[7]));
-
-    vector<Point2i> fingers = max_points;
-    if (first_difference < second_difference)
-        reverse(fingers.begin(), fingers.end());
-
-    fingers.resize(10);
-
-    // Средний палец.
-    Point2i mid_point = midPoint(max_points[3], max_points[5]);
-    // Проекция на линию начала пальцев.
-    fingers[5] = projection(max_points[3], max_points[7], mid_point);
-
-    // Безымянный палец.
-    mid_point = midPoint(max_points[5], max_points[7]);
-    fingers[7] = projection(max_points[3], max_points[7], mid_point);
-
-    // Мизинец.
-    fingers[9] = max_points[7];
-
-    return fingers;
-}
-
 // Проверка соотношений длин пальцев.
-static bool checkFingersLength(const vector<Point2i>& fingers)
+static bool checkFingersLength(const Finger fingers[5])
 {
-    if (fingers.size() != 10)
-        return false;
-
-    double length[5] = { 0.0 };
-    for (int i = 0; i < 5; ++i)
-    {
-        length[i] = norm(fingers[2 * i] - fingers[2 * i + 1]);
-    }
-
     // Указательный и безымянный пальцы должны быть примерно одной длины.
-    double difference = abs(length[1] - length[3]) / length[1];
+    double difference = abs(fingers[1].length - fingers[3].length) / fingers[1].length;
     if (difference > 0.1)
         return false;
 
     // Большой палец короче, чем указательный, средний и безымянный пальцы.
-    if (length[0] > length[1] || length[0] > length[2] || length[0] > length[3])
+    if (fingers[0].length > fingers[1].length ||
+        fingers[0].length > fingers[2].length ||
+        fingers[0].length > fingers[3].length)
+    {
         return false;
+    }
 
     // Мизинец короче, чем указательный, средний и безымянный пальцы.
-    if (length[4] > length[1] || length[4] > length[2] || length[4] > length[3])
+    if (fingers[4].length > fingers[1].length ||
+        fingers[4].length > fingers[2].length ||
+        fingers[4].length > fingers[3].length)
+    {
         return false;
+    }
 
     // Указательный и безымянный пальцы короче среднего пальца.
-    if (length[1] > length[2] || length[3] > length[2])
+    if (fingers[1].length > fingers[2].length ||
+        fingers[3].length > fingers[2].length)
+    {
         return false;
+    }
 
     return true;
 }
@@ -311,12 +366,12 @@ std::optional<Hand> handDetector(const Contour& contour, float min_treshold, flo
 
     vector<size_t> max = findMaxIndexes(extremum_values, extremum_indexes);
     vector<Point2i> max_points = contour.getContourPoints(max);
-    vector<Point2i> fingers = getFingers(max_points);
+    Hand hand(max_points);
 
-    if (!checkFingersLength(fingers))
+    if (!checkFingersLength(hand.getHandFingers()))
     {
         return {};
     }
 
-    return Hand(fingers);
+    return hand;
 }

@@ -26,16 +26,22 @@ class Hand
 public:
     // Создание объекта руки по точкам пальцев.
     Hand(const std::vector<cv::Point2i>& points);
+    // Возвращает точку на запястье.
+    cv::Point2i getWrist() const;
+    // Возвращает массив пальцев руки.
+    const Finger* getHandFingers() const;
     // Отрисовка точек пальцев на изображении.
     void print(cv::Mat& image);
     // Возвращает прямоугольник, содержащий руку.
     cv::Rect2i getBoundingBox();
+    // Обновление модели руки.
+    int update(std::vector<cv::Mat>& prevPyr, std::vector<cv::Mat>& nextPyr);
 
 private:
     // Массив пальцев руки.
     Finger fingers_[5];
-    // Точка на запястье.
-    cv::Point2i wrist_;
+    // Точка локального максимума кривизы контура между средним и безымянным пальцами.
+    cv::Point2i midle_point_;
 };
 
 /*

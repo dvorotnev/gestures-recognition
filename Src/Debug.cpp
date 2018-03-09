@@ -22,6 +22,7 @@ static uchar ForeGround = 255;
 void imageWrite(const String& name, const Mat& mat)
 {
 #if ___DEBUG___
+    _mkdir(debug_directory);
     String file_name = String(debug_directory) + name;
     _mkdir(file_name.c_str());
     char frame_counter_str[10];
@@ -70,6 +71,7 @@ void imageShow(const String& winname, const Mat& mat)
 void contoursShow(const String& winname, const Mat& mat)
 {
 #if ___DEBUG___
+    _mkdir(debug_directory);
     String file_name = String(debug_directory) + winname;
     _mkdir(file_name.c_str());
     char frame_counter_str[10];
@@ -95,6 +97,7 @@ void contoursShow(const String& winname, const Mat& mat)
 void curvatureShow(const String& winname, const std::vector<float>& curvature)
 {
 #if ___DEBUG___
+    _mkdir(debug_directory);
     String file_name = String(debug_directory) + winname;
     _mkdir(file_name.c_str());
     char frame_counter_str[10];

@@ -32,7 +32,7 @@ private:
 };
 
 // Поиск контуров на изображении.
-std::vector<Contour> extractContours(cv::InputArray& BinImage);
+std::vector<Contour> extractContours(cv::InputArray BinImage, cv::InputArray Mask);
 // Функция рисует все контуры на изображении.
 void printContours(cv::Mat& image, const std::vector<Contour>& contours);
 // Функция упорядочивает контуры по убыванию длины.
