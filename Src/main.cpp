@@ -99,10 +99,10 @@ int main()
             rectangle(hands_mask, box, Background, FILLED);
             buildOpticalFlowPyramid(fgmask, nextPyr, Size(31, 31), 1);
 
+            // TODO: Обработать пропадание руки.
             if (!prevPyr.empty())
                 hand.update(prevPyr, nextPyr);
 
-            // Обработать пропадание руки.
             hand.print(tracker_image);
             prevPyr = move(nextPyr);
         }
@@ -118,7 +118,6 @@ int main()
         contours_timer.stop();
         contoursShow("Contours", contours_image);
 
-        hands_image.setTo(Background);
         for (size_t i = 0; i < contours.size(); ++i)
         {
             // Распознавание руки.
@@ -129,7 +128,6 @@ int main()
                 hands.push_back(*hand);
         }
 
-        imageShow("Hand", hands_image);
         total_timer.stop();
         int c = waitKey(30);
         if (c == 27)

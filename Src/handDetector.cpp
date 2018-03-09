@@ -169,7 +169,7 @@ int Hand::update(vector<Mat>& prevPyr, vector<Mat>& nextPyr)
     vector<Point2f> prev_pts = {
         fingers_[0].peak, fingers_[0].start,
         fingers_[1].peak, fingers_[1].start,
-        fingers_[2].peak,  fingers_[3].peak,
+        fingers_[2].peak, fingers_[3].peak,
         fingers_[4].peak, fingers_[4].start,
         midle_point_
     };
