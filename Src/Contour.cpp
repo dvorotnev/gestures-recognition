@@ -112,7 +112,7 @@ Contour::Contour(const Mat& image, const Point2i& point) : start_(point), chain_
     while (true)
     {
         int direction = codeDirection(current_contour, current_bg);
-        int next_chain = 0;
+        int next_chain = -1;
 
         // Просматриваем 8ку соседей по часовой стрелке, начиная с точки фона.
         for (int i = 1; i <= 7; ++i)
@@ -140,6 +140,10 @@ Contour::Contour(const Mat& image, const Point2i& point) : start_(point), chain_
             current_contour = next_point;
             break;
         }
+
+        // Контур из одной точки.
+        if (next_chain == -1)
+            break;
 
         chain_code_.push_back(next_chain);
     }

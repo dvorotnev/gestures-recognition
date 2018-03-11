@@ -63,9 +63,9 @@ void imageShow(const String& winname, const Mat& mat)
     {
         imageWrite(winname, mat);
     }
-#else
-    imshow(winname, mat);
+
 #endif // ___DEBUG___
+    imshow(winname, mat);
 }
 
 void contoursShow(const String& winname, const Mat& mat)
