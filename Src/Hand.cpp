@@ -35,21 +35,22 @@ static vector<Point2i> getFingers(const vector<Point2i>& max_points)
     double first_difference = abs(norm(max_points[1] - max_points[2]) - norm(max_points[2] - max_points[3]));
     double second_difference = abs(norm(max_points[5] - max_points[6]) - norm(max_points[6] - max_points[7]));
 
-    vector<Point2i> fingers = max_points;
+    vector<Point2i> points = max_points;
     if (first_difference < second_difference)
-        reverse(fingers.begin(), fingers.end());
+        reverse(points.begin(), points.end());
 
+    vector<Point2i> fingers(points);
     fingers.resize(10);
 
     // Проекция на линию начала пальцев.
-    Point2i mid_point = projection(max_points[3], max_points[7], max_points[5]);
+    Point2i mid_point = projection(points[3], points[7], points[5]);
     // Средний палец.
-    fingers[5] = midPoint(max_points[3], mid_point);
+    fingers[5] = midPoint(points[3], mid_point);
     // Безымянный палец.
-    fingers[7] = midPoint(mid_point, max_points[7]);
+    fingers[7] = midPoint(mid_point, points[7]);
 
     // Мизинец.
-    fingers[9] = max_points[7];
+    fingers[9] = points[7];
 
     return fingers;
 }
