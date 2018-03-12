@@ -86,15 +86,16 @@ int main()
         imageShow("Open", fgmask);
 
         tracker_timer.start();
-        frame.copyTo(tracker_image);
         hand_detector.trace(fgmask);
-        hand_detector.printHands(tracker_image);
         imageShow("Tracker", tracker_image);
         tracker_timer.stop();
 
         detector_timer.start();
         hand_detector.detect(fgmask);
         detector_timer.stop();
+
+        frame.copyTo(tracker_image);
+        hand_detector.printHands(tracker_image);
 
         total_timer.stop();
         int c = waitKey(30);
