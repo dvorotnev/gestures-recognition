@@ -1,5 +1,5 @@
 ﻿/*
-    Функция распознавания руки на основе анализа кривизны контура.
+    Класс детектора руки на основе анализа кривизны контура.
 */
 
 #ifndef __HANDDETECTOR_H__
@@ -22,6 +22,8 @@ public:
     void detect(cv::InputArray BinaryImage);
     // Отрисовка всех найденных рук.
     void printHands(cv::InputArray Image) const;
+    // Возвращает список обнаруженных рук.
+    const std::list<Hand>* getHands() const;
 
 private:
     // Обновление маски рук.

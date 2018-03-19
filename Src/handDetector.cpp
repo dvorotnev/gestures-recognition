@@ -6,7 +6,7 @@
 #include <optional>
 
 #include <Contour.h>
-#include <handDetector.h>
+#include <HandDetector.h>
 
 using namespace std;
 using namespace cv;
@@ -249,6 +249,11 @@ void HandDetector::printHands(InputArray Image) const
     {
         hand.print(image);
     }
+}
+
+const list<Hand>* HandDetector::getHands() const
+{
+    return &hands_;
 }
 
 void HandDetector::updateMask(Size size)

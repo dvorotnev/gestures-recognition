@@ -61,6 +61,8 @@ static void fillFinger(Finger& finger, const Point2i& start, const Point2i& peak
     finger.start = start;
     finger.peak = peak;
     finger.length = length;
+    finger.is_bent = false;
+    finger.status_changed = false;
     return;
 }
 
@@ -95,49 +97,26 @@ const Finger* Hand::getHandFingers() const
     return fingers_;
 }
 
-// Отрисовка кольца вокруг заданной точки.
-static void printRing(Mat& image, const Point2i& center, int big_radius, int little_radius)
-{
-    for (int y = center.y - big_radius; y <= center.y + big_radius; ++y)
-    {
-        if (y < 0 || y >= image.rows)
-            continue;
-
-        uchar* ptr = image.ptr(y);
-        for (int x = center.x - big_radius; x <= center.x + big_radius; ++x)
-        {
-            if (x < 0 || x >= image.cols)
-                continue;
-
-            int distance = (y - center.y) * (y - center.y);
-            distance += (x - center.x) * (x - center.x);
-            if (distance >= little_radius && distance <= big_radius)
-                ptr[x * image.channels() + image.channels() - 1] = 255;
-        }
-    }
-
-    return;
-}
-
 void Hand::print(Mat& image) const
 {
-    printRing(image, fingers_[0].peak, 30, 20);
-    printRing(image, fingers_[0].start, 30, 20);
+    Scalar red(0, 0, 255);
+    circle(image, fingers_[0].peak, 6, red, 2);
+    circle(image, fingers_[0].start, 6, red, 2);
 
-    printRing(image, fingers_[1].peak, 25, 15);
-    printRing(image, fingers_[1].start, 25, 15);
+    circle(image, fingers_[1].peak, 5, red, 2);
+    circle(image, fingers_[1].start, 5, red, 2);
 
-    printRing(image, fingers_[2].peak, 20, 10);
-    printRing(image, fingers_[2].start, 20, 10);
+    circle(image, fingers_[2].peak, 4, red, 2);
+    circle(image, fingers_[2].start, 4, red, 2);
 
-    printRing(image, fingers_[3].peak, 15, 5);
-    printRing(image, fingers_[3].start, 15, 5);
+    circle(image, fingers_[3].peak, 3, red, 2);
+    circle(image, fingers_[3].start, 3, red, 2);
 
-    printRing(image, fingers_[4].peak, 10, 0);
-    printRing(image, fingers_[4].start, 10, 0);
+    circle(image, fingers_[4].peak, 2, red, 2);
+    circle(image, fingers_[4].start, 2, red, 2);
 
-    printRing(image, midle_point_, 5, 0);
-    printRing(image, getWrist(), 50, 0);
+    circle(image, midle_point_, 1, red, 2);
+    circle(image, getWrist(), 5, red, 10);
 
     return;
 }
@@ -166,7 +145,36 @@ cv::Rect2i Hand::getBoundingBox()
     return result;
 }
 
-int Hand::update(vector<Mat>& prevPyr, vector<Mat>& nextPyr)
+// Функция, обновляющая состояние пальцев.
+static void updateFingersStatus(Finger fingers[])
+{
+    for (int i = 0; i < 5; ++i)
+    {
+        Finger& finger = fingers[i];
+        double new_length = norm(finger.start - finger.peak);
+        if (new_length > finger.length)
+        {
+            finger.length = new_length;
+        }
+
+        if (!finger.is_bent && (new_length < finger.length * 0.5))
+        {
+            finger.is_bent = true;
+            finger.status_changed = true;
+        }
+        else if (finger.is_bent && (new_length >= finger.length * 0.5))
+        {
+            finger.is_bent = false;
+            finger.status_changed = true;
+        }
+        else if (finger.status_changed)
+        {
+            finger.status_changed = false;
+        }
+    }
+}
+
+int Hand::update(const vector<Mat>& prevPyr, const vector<Mat>& nextPyr)
 {
     vector<Point2f> prev_pts = {
         fingers_[0].peak, fingers_[0].start,
@@ -205,5 +213,6 @@ int Hand::update(vector<Mat>& prevPyr, vector<Mat>& nextPyr)
     fingers_[3].start = midPoint(mid_point, next_pts[7]);
     fingers_[3].peak = next_pts[5];
 
+    updateFingersStatus(fingers_);
     return 0;
 }
