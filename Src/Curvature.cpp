@@ -16,6 +16,7 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
     if (length < 4)
         return -1;
 
+    Size image_size = contour.getImageSize();
     vector<Point2i> points = contour.getContour();
 
     curvature.resize(length, 0);
@@ -43,8 +44,10 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
             const Point2i point_to_chord = points[i] - points[start_index];
 
             // Отбрасываем хорды, которые касаются края изображения
-            if (points[end_index].x == 0 || points[end_index].y == 0 ||
-                points[start_index].x == 0 || points[start_index].y == 0)
+            if (points[end_index].x == 0 || points[end_index].x == (image_size.width - 1) ||
+                points[end_index].y == 0 || points[end_index].y == (image_size.height - 1) ||
+                points[start_index].x == 0 || points[start_index].x == (image_size.width - 1) ||
+                points[start_index].y == 0 || points[start_index].y == (image_size.height - 1))
             {
                 continue;
             }
