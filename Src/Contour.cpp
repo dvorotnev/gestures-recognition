@@ -104,7 +104,7 @@ static Point2i decodeDirection(const Point2i& point, const int code)
     return result;
 }
 
-Contour::Contour(const Mat& image, const Point2i& point) : start_(point), chain_code_()
+Contour::Contour(const Mat& image, const Point2i& point) : image_size_(image.size()), start_(point), chain_code_()
 {
     Point2i current_contour = point;
     Point2i current_bg = {point.x - 1, point.y};
@@ -220,6 +220,11 @@ vector<Point2i> Contour::getContourPoints(vector<size_t>& point_indexes) const
     }
 
     return points;
+}
+
+Size Contour::getImageSize() const
+{
+    return image_size_;
 }
 
 vector<Contour> extractContours(InputArray BinImage, InputArray Mask)

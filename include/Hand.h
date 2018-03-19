@@ -16,6 +16,10 @@ struct Finger
     cv::Point2i peak;
     // Длина пальца.
     double length;
+    // Палец согнут.
+    bool is_bent;
+    // Палец разогнулся
+    bool status_changed;
 };
 
 class Hand
@@ -32,7 +36,7 @@ public:
     // Возвращает прямоугольник, содержащий руку.
     cv::Rect2i getBoundingBox();
     // Обновление модели руки.
-    int update(std::vector<cv::Mat>& prevPyr, std::vector<cv::Mat>& nextPyr);
+    int update(const std::vector<cv::Mat>& prevPyr, const std::vector<cv::Mat>& nextPyr);
 
 private:
     // Массив пальцев руки.

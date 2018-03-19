@@ -24,7 +24,12 @@ public:
     cv::Point2i getContourPoint(size_t point_index) const;
     // Функция возвращает вектор точек контура с индексами из вектора индексов.
     std::vector<cv::Point2i> getContourPoints(std::vector<size_t>& point_indexes) const;
+    // Функция возвращает размеры изображения, с которого получен контур.
+    cv::Size getImageSize() const;
+
 private:
+    // Размеры изображения, с которого получен контур.
+    cv::Size image_size_;
     // Начало контура.
     cv::Point2i start_;
     // Вектор для хранения цепного кода.

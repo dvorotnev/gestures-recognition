@@ -4,13 +4,12 @@
 #include <opencv2\video\video.hpp>
 
 #include <ViBe_plus.h>
-#include <deletenoise.h>
-#include <Contour.h>
 #include <CorrectionOfExposition.h>
 #include <HandDetector.h>
 #include <VideoSequenceCapture.h>
 #include <Timer.h>
 #include <Debug.h>
+#include <GesturesRecognition.h>
 
 using namespace std;
 using namespace cv;
@@ -20,9 +19,9 @@ const uchar Background = 0;
 
 int main()
 {
-    Timer total_timer, exposition_timer, motion_timer, detector_timer, tracker_timer;
-    VideoCapture video(0);
-    //VideoSequenceCapture video("d:\\test_videos\\output2\\0.png");
+    Timer total_timer, exposition_timer, motion_timer, detector_timer, tracker_timer, gestures_timer;
+    //VideoCapture video(0);
+    VideoSequenceCapture video("d:\\test_videos\\output6\\0.png");
 
     ViBe_plus motion(20, 20, 2, 15);
 
@@ -48,6 +47,7 @@ int main()
     Mat tracker_image(frame.size(), CV_8UC3);
 
     HandDetector hand_detector(15, 25, 7, 11);
+    GesturesRecognition gestures_recognition;
 
     while (true)
     {
@@ -87,15 +87,20 @@ int main()
 
         tracker_timer.start();
         hand_detector.trace(fgmask);
-        imageShow("Tracker", tracker_image);
         tracker_timer.stop();
 
         detector_timer.start();
         hand_detector.detect(fgmask);
         detector_timer.stop();
 
+        gestures_timer.start();
+        gestures_recognition.apply(hand_detector.getHands());
+        gestures_timer.stop();
+
         frame.copyTo(tracker_image);
         hand_detector.printHands(tracker_image);
+        gestures_recognition.printClicks(tracker_image);
+        imageShow("Tracker", tracker_image);
 
         total_timer.stop();
         int c = waitKey(30);
@@ -115,6 +120,7 @@ int main()
     time_log << "Motion detection: " << motion_timer.getTime() << " sec." << endl;
     time_log << "Hand tracking: " << tracker_timer.getTime() << " sec." << endl;
     time_log << "Hand detection: " << detector_timer.getTime() << " sec." << endl;
+    time_log << "Gestures Recognition: " << gestures_timer.getTime() << " sec." << endl;
     time_log.close();
 
     return 0;
