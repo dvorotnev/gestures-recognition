@@ -23,7 +23,7 @@ public:
     // Отрисовка всех найденных рук.
     void printHands(cv::InputArray Image) const;
     // Возвращает список обнаруженных рук.
-    const std::list<Hand>* getHands() const;
+    const std::list<Hand>& getHands() const;
 
 private:
     // Обновление маски рук.

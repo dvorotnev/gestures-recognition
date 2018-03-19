@@ -251,9 +251,9 @@ void HandDetector::printHands(InputArray Image) const
     }
 }
 
-const list<Hand>* HandDetector::getHands() const
+const list<Hand>& HandDetector::getHands() const
 {
-    return &hands_;
+    return hands_;
 }
 
 void HandDetector::updateMask(Size size)

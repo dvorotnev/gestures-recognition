@@ -94,7 +94,7 @@ int main()
         detector_timer.stop();
 
         gestures_timer.start();
-        gestures_recognition.apply(*hand_detector.getHands());
+        gestures_recognition.apply(hand_detector.getHands());
         gestures_timer.stop();
 
         frame.copyTo(tracker_image);
