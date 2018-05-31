@@ -5,7 +5,7 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#include <opencv2\core.hpp>
+#include <opencv2/core.hpp>
 
 #define ___DEBUG___ 0
 

@@ -2,11 +2,9 @@
     Реализация дополнительного функционала для отладки.
 */
 
-#include <fstream>
+#include <stdio.h>
 #include <direct.h>
-#include <opencv2\highgui.hpp>
-
-#include <graphUtils\GraphUtils.h>
+#include <opencv2/highgui.hpp>
 
 #include <Debug.h>
 

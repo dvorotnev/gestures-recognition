@@ -5,8 +5,8 @@
 #ifndef __VIBE_PLUS_H__
 #define __VIBE_PLUS_H__
 
-#include <opencv2\core.hpp>
-#include <opencv2\video.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/video.hpp>
 
 #include <ViBe.h>
 

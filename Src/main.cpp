@@ -1,7 +1,7 @@
 ﻿#include <fstream>
 #include <optional>
-#include <opencv2\highgui.hpp>
-#include <opencv2\video\video.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/video/video.hpp>
 
 #include <ViBe_plus.h>
 #include <CorrectionOfExposition.h>
