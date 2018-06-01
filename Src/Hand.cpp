@@ -2,7 +2,7 @@
     Реализация класса руки.
 */
 
-#include <opencv2\video\video.hpp>
+#include <opencv2/video/video.hpp>
 #include <algorithm>
 
 #include <Hand.h>

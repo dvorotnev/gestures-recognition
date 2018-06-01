@@ -6,7 +6,7 @@
 #define __HAND_H__
 
 #include <vector>
-#include <opencv2\core.hpp>
+#include <opencv2/core.hpp>
 
 struct Finger
 {
@@ -18,7 +18,7 @@ struct Finger
     double length;
     // Палец согнут.
     bool is_bent;
-    // Палец разогнулся
+    // Состояние пальца изменено.
     bool status_changed;
 };
 

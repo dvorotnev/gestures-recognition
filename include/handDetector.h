@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <list>
-#include <opencv2\core.hpp>
+#include <opencv2/core.hpp>
 
 #include <Hand.h>
 

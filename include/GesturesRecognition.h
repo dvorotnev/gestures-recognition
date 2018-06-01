@@ -6,7 +6,7 @@
 #define __GESTURES_RECOGNITION_H__
 
 #include <list>
-#include <opencv2\core.hpp>
+#include <opencv2/core.hpp>
 
 #include <Hand.h>
 

@@ -5,8 +5,8 @@
 #ifndef __CONTOUR_H__
 #define __CONTOUR_H__
 
-#include <opencv2\highgui.hpp>
-#include <opencv2\video\video.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/video/video.hpp>
 #include <vector>
 
 class Contour
