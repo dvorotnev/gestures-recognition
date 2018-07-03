@@ -236,12 +236,10 @@ void HandDetector::detect(InputArray BinaryImage)
 
     // Извлечение контуров.
     vector<Contour> contours = extractContours(image, mask_);
-    if (contours.empty())
-        return;
-
     for (size_t i = 0; i < contours.size(); ++i)
     {
         vector<Point2i> contour = contours[i].getContour();
+        // Оставляем только 5% низкочастотных дескрипторов
         smoothContour(contour, 0.05 * contours[i].size());
         vector<float> curvature = getCurvature(contour, image.size(), 75);
         // Распознавание руки.
