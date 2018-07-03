@@ -15,21 +15,13 @@ public:
     // Реализация алгоритма прослеживания границы.
     Contour(const cv::Mat& image, const cv::Point2i& point);
 
-    size_t length() const;
+    size_t size() const;
     // Возвращает вектор точек контура.
     std::vector<cv::Point2i> getContour() const;
     // Функция рисует контур на заданном изображении.
     void printContour(cv::Mat& image, uchar label) const;
-    // Функция возвращает точку контура с заданным индексом.
-    cv::Point2i getContourPoint(size_t point_index) const;
-    // Функция возвращает вектор точек контура с индексами из вектора индексов.
-    std::vector<cv::Point2i> getContourPoints(std::vector<size_t>& point_indexes) const;
-    // Функция возвращает размеры изображения, с которого получен контур.
-    cv::Size getImageSize() const;
 
 private:
-    // Размеры изображения, с которого получен контур.
-    cv::Size image_size_;
     // Начало контура.
     cv::Point2i start_;
     // Вектор для хранения цепного кода.
@@ -43,6 +35,6 @@ void printContours(cv::Mat& image, const std::vector<Contour>& contours);
 // Функция упорядочивает контуры по убыванию длины.
 void sortContours(std::vector<Contour>& contours);
 // Функция вычисляет кривизну контура в каждой точке.
-int getCurvature(std::vector<float>& curvature, Contour contour, const int chord_length);
+std::vector<float> getCurvature(const std::vector<cv::Point2i>& contour, const cv::Size& image_size, const int chord_length);
 
 #endif // __CONTOUR_H__
