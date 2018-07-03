@@ -13,7 +13,7 @@ void GesturesRecognition::printClicks(Mat& image) const
 {
     for (const auto& click : clicks_)
     {
-        drawMarker(image, click, Scalar(0, 255, 0));
+        drawMarker(image, click, Scalar(255, 0, 0), cv::MARKER_CROSS, 15, 2);
     }
 }
 

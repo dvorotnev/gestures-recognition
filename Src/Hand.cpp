@@ -48,7 +48,6 @@ static vector<Point2i> getFingers(const vector<Point2i>& max_points)
     fingers[5] = midPoint(points[3], mid_point);
     // Безымянный палец.
     fingers[7] = midPoint(mid_point, points[7]);
-
     // Мизинец.
     fingers[9] = points[7];
 

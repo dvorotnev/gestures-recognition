@@ -6,52 +6,13 @@
 #include <optional>
 
 #include <Contour.h>
-#include <HandDetector.h>
+#include <handDetector.h>
 
 using namespace std;
 using namespace cv;
 
 const uchar ForeGround = 255;
 const uchar Background = 0;
-
-HandDetector::HandDetector(float min_threshold, float max_threthold, int min_counter, int max_counter)
-: hands_(), mask_(), prev_pyr_(), min_threshold_(min_threshold), max_threthold_(max_threthold),
-min_counter_(min_counter), max_counter_(max_counter)
-{
-}
-
-// Подсчёт локальных максимумов, чередующихся локальными минимумами.
-static int countLocalMax(const vector<float>& extremums, float min_threshold, float max_threthold)
-{
-    const size_t length = extremums.size();
-    int counter = 0; // Счётчик локальных максимумов.
-    float prev = 0; // Предыдущее значение в точке экстремума.
-    bool search_max = true; // Флаг, указывающий ищется максимум или минимум.
-
-    for (size_t i = 0; i < length - 1; ++i)
-    {
-        const float current = extremums[i];
-        if (search_max)
-        {
-            // Если найден локальный максимум, больший чем заданный порог.
-            if ((current < prev) && (prev >= max_threthold))
-            {
-                search_max = false;
-                ++counter;
-            }
-        }
-        else
-        {
-            // Если найден локальный минимум, меньший чем заданный порог.
-            if ((current > prev) && (prev < min_threshold))
-                search_max = true;
-        }
-
-        prev  = current;
-    }
-
-    return counter;
-}
 
 // Поиск точек экстремума и их индексов в векторе кривизны.
 static pair<vector<float>, vector<size_t>> findExtremums(const vector<float>& curvature)
@@ -85,6 +46,9 @@ static pair<vector<float>, vector<size_t>> findExtremums(const vector<float>& cu
 // Поиск индексов максимумов.
 static vector<size_t> findMaxIndexes(vector<float>& values, vector<size_t>& indexes)
 {
+    if (indexes.size() < 9)
+        return indexes;
+
     vector<size_t> max_indexes(9, 0);
     for (size_t i = 0; i < 9; ++i)
     {
@@ -157,14 +121,23 @@ static bool checkFingersLength(const Finger fingers[5])
     return true;
 }
 
-// Функция на основании анализа кривизны контура вычисляет, является ли контур рукой.
-static std::optional<Hand> handDetector(const Contour& contour, float min_treshold, float max_trethold, int min_counter, int max_counter)
+// Поиск координат точек контура с заданными индексами.
+static vector<Point2i> getContourPoints(const vector<Point2i>& contour, const vector<size_t>& point_indexes)
 {
+    size_t size = point_indexes.size();
+    vector<Point2i> points(size);
 
-    vector<float> curvature;
-    if (getCurvature(curvature, contour, 75) != 0)
-        throw;
+    for (size_t i = 0; i < size; ++i)
+    {
+        points[i] = contour[point_indexes[i]];
+    }
 
+    return points;
+}
+
+// Функция на основании анализа кривизны контура вычисляет, является ли контур рукой.
+static std::optional<Hand> handDetector(const vector<Point2i>& contour, const vector<float>& curvature)
+{
     const size_t length = curvature.size();
     if (length < 2)
         throw;
@@ -172,21 +145,15 @@ static std::optional<Hand> handDetector(const Contour& contour, float min_tresho
     auto extremums = findExtremums(curvature);
     vector<float> extremum_values = get<0>(extremums);
     vector<size_t> extremum_indexes = get<1>(extremums);
-
-    int counter = countLocalMax(extremum_values, min_treshold, max_trethold);
-    if ((counter < min_counter) || (counter > max_counter))
-    {
+    if (extremum_indexes.size() < 9)
         return {};
-    }
 
     vector<size_t> max = findMaxIndexes(extremum_values, extremum_indexes);
-    vector<Point2i> max_points = contour.getContourPoints(max);
+    vector<Point2i> max_points = getContourPoints(contour, max);
     Hand hand(max_points);
 
     if (!checkFingersLength(hand.getHandFingers()))
-    {
         return {};
-    }
 
     return hand;
 }
@@ -222,6 +189,46 @@ void HandDetector::trace(InputArray BinaryImage)
     return;
 }
 
+// Сглаживание индексов в векторе.
+static void smoothVector(vector<float>& ticks, int nonzero)
+{
+    dft(ticks, ticks);
+
+    nonzero = nonzero * 2;
+    for (size_t i = nonzero + 1; i < ticks.size(); ++i)
+    {
+        ticks[i] = 0;
+    }
+
+    dft (ticks, ticks, DFT_INVERSE + DFT_SCALE);
+    return;
+}
+
+// Сглаживание контура объекта.
+static void smoothContour(vector<Point2i>& contour, int nonzero)
+{
+    vector<float> ticks(contour.size());
+    for (size_t i = 0; i < contour.size(); ++i)
+    {
+        ticks[i] = contour[i].x;
+    }
+
+    smoothVector(ticks, nonzero);
+    for (size_t i = 0; i < contour.size(); ++i)
+    {
+        contour[i].x = ticks[i];
+        ticks[i] = contour[i].y;
+    }
+
+    smoothVector(ticks, nonzero);
+    for (size_t i = 0; i < contour.size(); ++i)
+    {
+        contour[i].y = ticks[i];
+    }
+
+    return;
+}
+
 void HandDetector::detect(InputArray BinaryImage)
 {
     Mat image = BinaryImage.getMat();
@@ -229,12 +236,14 @@ void HandDetector::detect(InputArray BinaryImage)
 
     // Извлечение контуров.
     vector<Contour> contours = extractContours(image, mask_);
-    sortContours(contours);
-
     for (size_t i = 0; i < contours.size(); ++i)
     {
+        vector<Point2i> contour = contours[i].getContour();
+        // Оставляем только 5% низкочастотных дескрипторов
+        smoothContour(contour, 0.05 * contours[i].size());
+        vector<float> curvature = getCurvature(contour, image.size(), 75);
         // Распознавание руки.
-        optional<Hand> hand = handDetector(contours[i], min_threshold_, max_threthold_, min_counter_, max_counter_);
+        optional<Hand> hand = handDetector(contour, curvature);
         if (hand)
             hands_.push_back(*hand);
     }

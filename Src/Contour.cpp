@@ -104,7 +104,7 @@ static Point2i decodeDirection(const Point2i& point, const int code)
     return result;
 }
 
-Contour::Contour(const Mat& image, const Point2i& point) : image_size_(image.size()), start_(point), chain_code_()
+Contour::Contour(const Mat& image, const Point2i& point) : start_(point), chain_code_()
 {
     Point2i current_contour = point;
     Point2i current_bg = {point.x - 1, point.y};
@@ -151,16 +151,16 @@ Contour::Contour(const Mat& image, const Point2i& point) : image_size_(image.siz
     return;
 }
 
-size_t Contour::length() const
+size_t Contour::size() const
 {
     return chain_code_.size() + 1;
 }
 
 vector<Point2i> Contour::getContour() const
 {
-    vector<Point2i> points(length());
+    vector<Point2i> points(size());
     points[0] = start_;
-    for (size_t i = 0; i < length() - 1; ++i)
+    for (size_t i = 0; i < size() - 1; ++i)
     {
         points[i + 1] = decodeDirection(points[i], chain_code_[i]);
     }
@@ -195,38 +195,6 @@ void Contour::printContour(Mat& image, uchar label) const
     return;
 }
 
-Point2i Contour::getContourPoint(size_t point_index) const
-{
-    if (point_index > length())
-        throw;
-
-    Point2i result = start_;
-    for (size_t i = 0; i < point_index; ++i)
-    {
-        result = decodeDirection(result, chain_code_[i]);
-    }
-
-    return result;
-}
-
-vector<Point2i> Contour::getContourPoints(vector<size_t>& point_indexes) const
-{
-    size_t size = point_indexes.size();
-    vector<Point2i> points(size);
-
-    for (size_t i = 0; i < size; ++i)
-    {
-        points[i] = getContourPoint(point_indexes[i]);
-    }
-
-    return points;
-}
-
-Size Contour::getImageSize() const
-{
-    return image_size_;
-}
-
 vector<Contour> extractContours(InputArray BinImage, InputArray Mask)
 {
     Mat image(BinImage.getMat());
@@ -258,7 +226,7 @@ vector<Contour> extractContours(InputArray BinImage, InputArray Mask)
             Contour current(contours_image, point);
             // Удаляем контур с изображения.
             current.printContour(contours_image, Background);
-            if (current.length() >= 4)
+            if (current.size() >= 4)
                 contours.push_back(current);
         }
     }
@@ -293,8 +261,8 @@ void sortContours(vector<Contour>& contours)
     {
         for (size_t j = 0; j < i; ++j)
         {
-            const size_t current_size = contours[j].length();
-            const size_t next_size = contours[j + 1].length();
+            const size_t current_size = contours[j].size();
+            const size_t next_size = contours[j + 1].size();
             if (current_size < next_size)
                 swap(contours[j], contours[j + 1]);
         }

@@ -20,8 +20,8 @@ const uchar Background = 0;
 int main()
 {
     Timer total_timer, exposition_timer, motion_timer, detector_timer, tracker_timer, gestures_timer;
-    //VideoCapture video(0);
-    VideoSequenceCapture video("d:\\test_videos\\output6\\0.png");
+    VideoCapture video(0);
+    //VideoSequenceCapture video("d:\\test_videos\\Input7\\0.png");
 
     ViBe_plus motion(20, 20, 2, 15);
 
@@ -46,7 +46,7 @@ int main()
     Mat fgmask(frame.size(), CV_8UC1);
     Mat tracker_image(frame.size(), CV_8UC3);
 
-    HandDetector hand_detector(15, 25, 7, 11);
+    HandDetector hand_detector;
     GesturesRecognition gestures_recognition;
 
     while (true)

@@ -10,16 +10,13 @@ using namespace cv;
 const uchar Background = 0;
 const uchar ForeGround = 255;
 
-int getCurvature(vector<float>& curvature, Contour contour, const int chord_length)
+vector<float> getCurvature(const vector<Point2i>& contour, const Size& image_size, const int chord_length)
 {
-    size_t length = contour.length();
+    size_t length = contour.size();
     if (length < 4)
-        return -1;
+        throw;
 
-    Size image_size = contour.getImageSize();
-    vector<Point2i> points = contour.getContour();
-
-    curvature.resize(length, 0);
+    vector<float> curvature(length, 0.0);
     for (size_t i = 0; i < length; ++i)
     {
         // Вычисляем координаты концов хорды.
@@ -40,14 +37,14 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
                 end_index = (int)length - 1;
 
             // Вычисляем расстояние от точки до хорды.
-            const Point2i chord = points[end_index] - points[start_index];
-            const Point2i point_to_chord = points[i] - points[start_index];
+            const Point2i chord = contour[end_index] - contour[start_index];
+            const Point2i point_to_chord = contour[i] - contour[start_index];
 
             // Отбрасываем хорды, которые касаются края изображения
-            if (points[end_index].x == 0 || points[end_index].x == (image_size.width - 1) ||
-                points[end_index].y == 0 || points[end_index].y == (image_size.height - 1) ||
-                points[start_index].x == 0 || points[start_index].x == (image_size.width - 1) ||
-                points[start_index].y == 0 || points[start_index].y == (image_size.height - 1))
+            if (contour[end_index].x < 10 || contour[end_index].x >= (image_size.width - 10) ||
+                contour[end_index].y < 10 || contour[end_index].y >= (image_size.height - 10) ||
+                contour[start_index].x < 10 || contour[start_index].x >= (image_size.width - 10) ||
+                contour[start_index].y < 10 || contour[start_index].y >= (image_size.height - 10))
             {
                 continue;
             }
@@ -61,5 +58,5 @@ int getCurvature(vector<float>& curvature, Contour contour, const int chord_leng
         }
     }
 
-    return 0;
+    return curvature;
 }
