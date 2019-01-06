@@ -1,0 +1,29 @@
+language: cpp
+dist: xenial
+addons:
+  apt:
+    update: true
+    packages:
+      - libopencv-dev
+
+os:
+  - linux
+
+compiler:
+  - gcc
+  - clang
+
+branches:
+  only:
+    - master
+
+before_install:
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt-get update
+  - sudo apt-get install -y libopencv-dev
+
+script:
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=Debug ..
+  - make package -j
