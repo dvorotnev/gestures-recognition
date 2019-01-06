@@ -5,7 +5,7 @@ include_directories(${OpenCV_INCLUDE_DIRS} )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/include)
-file(GLOB SOURCES src/*.cpp)
+file(GLOB SOURCES Src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_compile_options(${PROJECT_NAME} PUBLIC -std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-parameter)
