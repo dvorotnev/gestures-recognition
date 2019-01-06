@@ -22,28 +22,6 @@ branches:
     - master
 
 script:
-  - export language: cpp
-dist: xenial
-addons:
-  apt:
-    update: true
-    packages:
-      - gcc-7
-      - g++-7
-      - libopencv-dev
-
-os:
-  - linux
-
-compiler:
-  - gcc
-  - clang
-
-branches:
-  only:
-    - master
-
-script:
   - ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
   - ln -s /usr/bin/g++-7 /usr/local/bin/g++
   - mkdir build
