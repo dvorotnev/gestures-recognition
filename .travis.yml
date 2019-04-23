@@ -11,7 +11,7 @@ addons:
     packages:
       - gcc-7
       - g++-7
-      - libopencv-dev
+      - opencv
 
 os:
   - linux
