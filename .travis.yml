@@ -11,7 +11,6 @@ addons:
     packages:
       - gcc-7
       - g++-7
-      - opencv
 
 os:
   - linux
@@ -25,6 +24,7 @@ branches:
     - master
 
 script:
+  - apt search opencv
   - ls -l /usr/include/opencv/
   - ls -l /usr/include/opencv2/
   - sudo ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
