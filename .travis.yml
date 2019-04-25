@@ -14,6 +14,7 @@ addons:
       - libopencv-dev
       - libopencv-dnn-dev
       - libopencv-shape3.3
+      - libopencv3.3-java
 os:
   - linux
 
