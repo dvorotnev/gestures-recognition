@@ -11,9 +11,6 @@ addons:
     packages:
       - gcc-7
       - g++-7
-      - libopencv-dev
-      - libopencv-dnn-dev
-      - libopencv-shape3.4
 
 os:
   - linux
@@ -27,6 +24,7 @@ branches:
     - master
 
 script:
+  - apt search opencv
   - sudo ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
   - sudo ln -s /usr/bin/g++-7 /usr/local/bin/g++
   - mkdir build
