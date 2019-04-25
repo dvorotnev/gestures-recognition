@@ -12,7 +12,7 @@ addons:
       - gcc-7
       - g++-7
       - libopencv-dev
-      - libopencv-dnn
+      - libopencv-dnn-dev
 
 os:
   - linux
