@@ -13,6 +13,7 @@ addons:
       - g++-7
       - libopencv-dev
       - libopencv-dnn-dev
+      - libopencv-shape-dev
 
 os:
   - linux
