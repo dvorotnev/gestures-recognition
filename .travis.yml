@@ -7,14 +7,10 @@ addons:
     update: true
     sources:
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:timsc/opencv-3.3'
     packages:
       - gcc-7
       - g++-7
       - libopencv-dev
-      - libopencv-dnn-dev
-      - libopencv-shape3.3
-      - libopencv3.3-java
 os:
   - linux
 
