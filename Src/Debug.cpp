@@ -3,7 +3,7 @@
 */
 
 #include <stdio.h>
-#include <direct.h>
+//#include <direct.h>
 #include <opencv2/highgui.hpp>
 
 #include <Debug.h>

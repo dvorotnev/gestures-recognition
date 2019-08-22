@@ -1,0 +1,25 @@
+language: cpp
+dist: bionic
+sudo: required
+
+addons:
+  apt:
+    update: true
+    packages:
+      - libopencv-dev
+os:
+  - linux
+
+compiler:
+  - gcc
+  - clang
+
+branches:
+  only:
+    - master
+
+script:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make -j

@@ -5,7 +5,7 @@
 
 #include <ViBe_plus.h>
 #include <CorrectionOfExposition.h>
-#include <HandDetector.h>
+#include <handDetector.h>
 #include <VideoSequenceCapture.h>
 #include <Timer.h>
 #include <Debug.h>
