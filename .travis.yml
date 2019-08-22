@@ -5,11 +5,7 @@ sudo: required
 addons:
   apt:
     update: true
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
-      - gcc-7
-      - g++-7
       - libopencv-dev
 os:
   - linux
@@ -23,10 +19,7 @@ branches:
     - master
 
 script:
-  - apt search opencv
-  - sudo ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
-  - sudo ln -s /usr/bin/g++-7 /usr/local/bin/g++
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Debug ..
+  - cmake ..
   - make -j
